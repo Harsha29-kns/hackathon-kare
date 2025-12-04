@@ -55,8 +55,8 @@ function NotFound() {
         <p className="subtitle">The Team Dashboard is currently being forged for the Hackathon.</p>
         
         <div className="message-box">
-          <p>This module will be deployed and available on the day of the event.</p>
-          <p className="highlight">Please do not attempt to access this page again until the event begins.</p>
+          <p>This event is completed plz wait for another event.</p>
+          <p className="highlight">Devloped by Harsha.</p>
         </div>
 
         <div className="countdown-container">
