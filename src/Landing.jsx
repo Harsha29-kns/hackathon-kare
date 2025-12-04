@@ -56,7 +56,7 @@ function NotFound() {
         
         <div className="message-box">
           <p>This event is completed plz wait for another event.</p>
-          <p className="highlight">Devloped by Harsha.</p>
+          <p className="highlight">Developed by Harsha.</p>
         </div>
 
         <div className="countdown-container">
