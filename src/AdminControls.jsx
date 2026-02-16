@@ -7,14 +7,14 @@ import { Clock, Unlock, Lock, Users, Gamepad2, Target } from "lucide-react";
 const socket = io(api);
 
 function AdminControls() {
-  
+
   const [domainTime, setDomainTime] = useState("");
   const [regTime, setRegTime] = useState("");
   const [gameTime, setGameTime] = useState("");
   const [puzzleTime, setPuzzleTime] = useState("");
   const [stopTheBarTime, setStopTheBarTime] = useState("");
 
-  
+
   const [regLimitInput, setRegLimitInput] = useState(60);
   const [currentCount, setCurrentCount] = useState(0);
   const [currentLimit, setCurrentLimit] = useState(0);
@@ -56,7 +56,7 @@ function AdminControls() {
       alert("Signal to close registrations sent!");
     }
   };
-  
+
   // --- Domain Handlers ---
   const handleSetDomainTime = () => {
     if (domainTime) {
@@ -67,14 +67,14 @@ function AdminControls() {
       alert("Please select a valid date and time.");
     }
   };
-  
+
   const handleOpenDomainsNow = () => {
     if (window.confirm("Are you sure you want to OPEN domain selection immediately?")) {
       socket.emit("domainOpen");
       alert("Signal to open domains has been sent!");
     }
   };
-  
+
   const handleCloseDomains = () => {
     if (window.confirm("⚠️ WARNING: This will immediately CLOSE domain selection. Continue?")) {
       socket.emit("admin:closeDomains");
@@ -83,14 +83,14 @@ function AdminControls() {
   };
 
   const handleSetStopTheBarTime = () => {
-        if (stopTheBarTime) {
-            const isoTimestamp = new Date(stopTheBarTime).toISOString();
-            socket.emit("admin:setStopTheBarTime", isoTimestamp);
-            alert(`"Stop the Bar" game opening time set to: ${new Date(stopTheBarTime).toLocaleString()}`);
-        } else {
-            alert("Please select a valid date and time.");
-        }
-    };
+    if (stopTheBarTime) {
+      const isoTimestamp = new Date(stopTheBarTime).toISOString();
+      socket.emit("admin:setStopTheBarTime", isoTimestamp);
+      alert(`"Stop the Bar" game opening time set to: ${new Date(stopTheBarTime).toLocaleString()}`);
+    } else {
+      alert("Please select a valid date and time.");
+    }
+  };
 
   // --- ADDED: Game Timer Handler ---
   const handleSetGameTime = () => {
@@ -103,14 +103,14 @@ function AdminControls() {
     }
   };
   const handleSetPuzzleTime = () => {
-        if (puzzleTime) {
-            const isoTimestamp = new Date(puzzleTime).toISOString();
-            socket.emit("admin:setPuzzleOpenTime", isoTimestamp);
-            alert(`Number Puzzle opening time has been set to: ${new Date(puzzleTime).toLocaleString()}`);
-        } else {
-            alert("Please select a valid date and time for the puzzle.");
-        }
-    };
+    if (puzzleTime) {
+      const isoTimestamp = new Date(puzzleTime).toISOString();
+      socket.emit("admin:setPuzzleOpenTime", isoTimestamp);
+      alert(`Number Puzzle opening time has been set to: ${new Date(puzzleTime).toLocaleString()}`);
+    } else {
+      alert("Please select a valid date and time for the puzzle.");
+    }
+  };
 
   // Listen for server updates on registration status
   useEffect(() => {
@@ -118,9 +118,18 @@ function AdminControls() {
       setIsRegClosed(status.isClosed);
       setCurrentCount(status.count);
       setCurrentLimit(status.limit);
-      setRegLimitInput(status.limit);
+      // Don't update regLimitInput here - let user type freely
+      // Only update it on initial load
     });
     socket.emit('check');
+
+    // Set initial value once
+    const handleInitialStatus = (status) => {
+      setRegLimitInput(status.limit);
+      socket.off('registrationStatus', handleInitialStatus);
+    };
+    socket.once('registrationStatus', handleInitialStatus);
+
     return () => {
       socket.off('registrationStatus');
     };
@@ -128,17 +137,17 @@ function AdminControls() {
 
   useEffect(() => {
     socket.on('reviewStatusUpdate', (status) => {
-        setIsFirstReviewOpen(status.isFirstReviewOpen);
-        setIsSecondReviewOpen(status.isSecondReviewOpen);
+      setIsFirstReviewOpen(status.isFirstReviewOpen);
+      setIsSecondReviewOpen(status.isSecondReviewOpen);
     });
-    
+
     // Fetch initial status when the component mounts
     socket.emit('judge:getReviewStatus');
 
     return () => {
-        socket.off('reviewStatusUpdate');
+      socket.off('reviewStatusUpdate');
     };
-}, []);
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-black text-white p-8 flex flex-col items-center">
@@ -146,7 +155,7 @@ function AdminControls() {
         <h1 className="text-4xl font-extrabold text-center mb-12 bg-gradient-to-r from-orange-400 to-pink-500 text-transparent bg-clip-text">
           Admin Controls Panel
         </h1>
-        
+
         {/* --- Registration Controls Section --- */}
         <section className="bg-gray-900/70 backdrop-blur-md p-6 rounded-2xl shadow-lg mb-8 border border-gray-700">
           <div className="flex items-center gap-3 mb-4">
@@ -172,11 +181,11 @@ function AdminControls() {
             </div>
             {/* Force Controls */}
             <div className="flex gap-4 pt-2">
-              <button onClick={handleForceOpenReg} className="flex-1 bg-green-600 hover:bg-green-700 px-6 py-2 rounded-lg font-semibold transition shadow-md flex items-center justify-center gap-2"><Unlock size={18}/> Open Now</button>
-              <button onClick={handleForceCloseReg} className="flex-1 bg-red-600 hover:bg-red-700 px-6 py-2 rounded-lg font-semibold transition shadow-md flex items-center justify-center gap-2"><Lock size={18}/> Close Now</button>
+              <button onClick={handleForceOpenReg} className="flex-1 bg-green-600 hover:bg-green-700 px-6 py-2 rounded-lg font-semibold transition shadow-md flex items-center justify-center gap-2"><Unlock size={18} /> Open Now</button>
+              <button onClick={handleForceCloseReg} className="flex-1 bg-red-600 hover:bg-red-700 px-6 py-2 rounded-lg font-semibold transition shadow-md flex items-center justify-center gap-2"><Lock size={18} /> Close Now</button>
             </div>
-             <div className={`p-3 rounded-lg text-center font-bold text-lg ${isRegClosed ? 'bg-red-900/50 text-red-300' : 'bg-green-900/50 text-green-300'}`}>
-               Status: Registrations are currently {isRegClosed ? 'CLOSED' : 'OPEN'}
+            <div className={`p-3 rounded-lg text-center font-bold text-lg ${isRegClosed ? 'bg-red-900/50 text-red-300' : 'bg-green-900/50 text-green-300'}`}>
+              Status: Registrations are currently {isRegClosed ? 'CLOSED' : 'OPEN'}
             </div>
           </div>
         </section>
@@ -196,41 +205,41 @@ function AdminControls() {
               </div>
             </div>
             <div className="flex gap-4 pt-2">
-              <button onClick={handleOpenDomainsNow} className="flex-1 bg-green-600 hover:bg-green-700 px-6 py-2 rounded-lg font-semibold transition shadow-md flex items-center justify-center gap-2"><Unlock size={18}/> Open Now</button>
-              <button onClick={handleCloseDomains} className="flex-1 bg-red-600 hover:bg-red-700 px-6 py-2 rounded-lg font-semibold transition shadow-md flex items-center justify-center gap-2"><Lock size={18}/> Close Now</button>
+              <button onClick={handleOpenDomainsNow} className="flex-1 bg-green-600 hover:bg-green-700 px-6 py-2 rounded-lg font-semibold transition shadow-md flex items-center justify-center gap-2"><Unlock size={18} /> Open Now</button>
+              <button onClick={handleCloseDomains} className="flex-1 bg-red-600 hover:bg-red-700 px-6 py-2 rounded-lg font-semibold transition shadow-md flex items-center justify-center gap-2"><Lock size={18} /> Close Now</button>
             </div>
           </div>
         </section>
 
         <section className="bg-gray-900/70 backdrop-blur-md p-6 rounded-2xl shadow-lg mb-8 border border-gray-700">
-              <div className="flex items-center gap-3 mb-4">
-                  <h2 className="text-2xl font-semibold">Review Controls</h2>
-              </div>
-              <div className="space-y-4">
-                  {/* First Review Controls */}
-                  <div className="flex items-center justify-between">
-                      <p className="text-lg">First Review Status:</p>
-                      <span className={`px-3 py-1 rounded-full text-sm font-semibold ${isFirstReviewOpen ? 'bg-green-500/30 text-green-300' : 'bg-red-500/30 text-red-300'}`}>
-                          {isFirstReviewOpen ? 'OPEN' : 'CLOSED'}
-                      </span>
-                  </div>
-                  <div className="flex gap-4">
-                      <button onClick={() => socket.emit("admin:setFirstReviewState", true)} className="flex-1 bg-green-600 hover:bg-green-700 px-6 py-2 rounded-lg font-semibold transition">Open First Review</button>
-                      <button onClick={() => socket.emit("admin:setFirstReviewState", false)} className="flex-1 bg-red-600 hover:bg-red-700 px-6 py-2 rounded-lg font-semibold transition">Close First Review</button>
-                  </div>
-                  
-                  {/* Second Review Controls */}
-                  <div className="flex items-center justify-between pt-4">
-                      <p className="text-lg">Second Review Status:</p>
-                      <span className={`px-3 py-1 rounded-full text-sm font-semibold ${isSecondReviewOpen ? 'bg-green-500/30 text-green-300' : 'bg-red-500/30 text-red-300'}`}>
-                          {isSecondReviewOpen ? 'OPEN' : 'CLOSED'}
-                      </span>
-                  </div>
-                  <div className="flex gap-4">
-                      <button onClick={() => socket.emit("admin:setSecondReviewState", true)} className="flex-1 bg-green-600 hover:bg-green-700 px-6 py-2 rounded-lg font-semibold transition">Open Second Review</button>
-                      <button onClick={() => socket.emit("admin:setSecondReviewState", false)} className="flex-1 bg-red-600 hover:bg-red-700 px-6 py-2 rounded-lg font-semibold transition">Close Second Review</button>
-                  </div>
-              </div>
+          <div className="flex items-center gap-3 mb-4">
+            <h2 className="text-2xl font-semibold">Review Controls</h2>
+          </div>
+          <div className="space-y-4">
+            {/* First Review Controls */}
+            <div className="flex items-center justify-between">
+              <p className="text-lg">First Review Status:</p>
+              <span className={`px-3 py-1 rounded-full text-sm font-semibold ${isFirstReviewOpen ? 'bg-green-500/30 text-green-300' : 'bg-red-500/30 text-red-300'}`}>
+                {isFirstReviewOpen ? 'OPEN' : 'CLOSED'}
+              </span>
+            </div>
+            <div className="flex gap-4">
+              <button onClick={() => socket.emit("admin:setFirstReviewState", true)} className="flex-1 bg-green-600 hover:bg-green-700 px-6 py-2 rounded-lg font-semibold transition">Open First Review</button>
+              <button onClick={() => socket.emit("admin:setFirstReviewState", false)} className="flex-1 bg-red-600 hover:bg-red-700 px-6 py-2 rounded-lg font-semibold transition">Close First Review</button>
+            </div>
+
+            {/* Second Review Controls */}
+            <div className="flex items-center justify-between pt-4">
+              <p className="text-lg">Second Review Status:</p>
+              <span className={`px-3 py-1 rounded-full text-sm font-semibold ${isSecondReviewOpen ? 'bg-green-500/30 text-green-300' : 'bg-red-500/30 text-red-300'}`}>
+                {isSecondReviewOpen ? 'OPEN' : 'CLOSED'}
+              </span>
+            </div>
+            <div className="flex gap-4">
+              <button onClick={() => socket.emit("admin:setSecondReviewState", true)} className="flex-1 bg-green-600 hover:bg-green-700 px-6 py-2 rounded-lg font-semibold transition">Open Second Review</button>
+              <button onClick={() => socket.emit("admin:setSecondReviewState", false)} className="flex-1 bg-red-600 hover:bg-red-700 px-6 py-2 rounded-lg font-semibold transition">Close Second Review</button>
+            </div>
+          </div>
         </section>
 
         {/* --- ADDED: Game Controls Section --- */}
@@ -251,34 +260,34 @@ function AdminControls() {
         </section>
 
         <section className="bg-gray-900/70 backdrop-blur-md p-6 rounded-2xl shadow-lg mb-8 border border-gray-700">
-              <div className="flex items-center gap-3 mb-4">
-                <Gamepad2 className="text-teal-400 h-7 w-7" />
-                <h2 className="text-2xl font-semibold">Number Puzzle Controls</h2>
+          <div className="flex items-center gap-3 mb-4">
+            <Gamepad2 className="text-teal-400 h-7 w-7" />
+            <h2 className="text-2xl font-semibold">Number Puzzle Controls</h2>
+          </div>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-gray-300 mb-2">Schedule Puzzle Opening Time</label>
+              <div className="flex gap-4">
+                <input type="datetime-local" onChange={(e) => setPuzzleTime(e.target.value)} className="flex-1 px-4 py-2 rounded-lg bg-gray-800 border border-gray-600 shadow-sm focus:ring-2 focus:ring-teal-400 text-white" />
+                <button onClick={handleSetPuzzleTime} className="bg-teal-500 text-white hover:bg-teal-600 px-6 py-2 rounded-lg font-semibold transition shadow-md">Set Timer</button>
               </div>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-gray-300 mb-2">Schedule Puzzle Opening Time</label>
-                  <div className="flex gap-4">
-                    <input type="datetime-local" onChange={(e) => setPuzzleTime(e.target.value)} className="flex-1 px-4 py-2 rounded-lg bg-gray-800 border border-gray-600 shadow-sm focus:ring-2 focus:ring-teal-400 text-white" />
-                    <button onClick={handleSetPuzzleTime} className="bg-teal-500 text-white hover:bg-teal-600 px-6 py-2 rounded-lg font-semibold transition shadow-md">Set Timer</button>
-                  </div>
-                </div>
-              </div>
+            </div>
+          </div>
         </section>
         <section className="bg-gray-900/70 backdrop-blur-md p-6 rounded-2xl shadow-lg mb-8 border border-gray-700">
-            <div className="flex items-center gap-3 mb-4">
-                <Target className="text-red-400 h-7 w-7" />
-                <h2 className="text-2xl font-semibold">"Stop the Bar" Game Controls</h2>
+          <div className="flex items-center gap-3 mb-4">
+            <Target className="text-red-400 h-7 w-7" />
+            <h2 className="text-2xl font-semibold">"Stop the Bar" Game Controls</h2>
+          </div>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-gray-300 mb-2">Schedule Game Opening Time</label>
+              <div className="flex gap-4">
+                <input type="datetime-local" onChange={(e) => setStopTheBarTime(e.target.value)} className="flex-1 px-4 py-2 rounded-lg bg-gray-800 border border-gray-600 shadow-sm focus:ring-2 focus:ring-red-400 text-white" />
+                <button onClick={handleSetStopTheBarTime} className="bg-red-500 text-white hover:bg-red-600 px-6 py-2 rounded-lg font-semibold transition shadow-md">Set Timer</button>
+              </div>
             </div>
-            <div className="space-y-4">
-                <div>
-                    <label className="block text-gray-300 mb-2">Schedule Game Opening Time</label>
-                    <div className="flex gap-4">
-                        <input type="datetime-local" onChange={(e) => setStopTheBarTime(e.target.value)} className="flex-1 px-4 py-2 rounded-lg bg-gray-800 border border-gray-600 shadow-sm focus:ring-2 focus:ring-red-400 text-white" />
-                        <button onClick={handleSetStopTheBarTime} className="bg-red-500 text-white hover:bg-red-600 px-6 py-2 rounded-lg font-semibold transition shadow-md">Set Timer</button>
-                    </div>
-                </div>
-            </div>
+          </div>
         </section>
 
       </div>

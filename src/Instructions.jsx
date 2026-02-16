@@ -83,7 +83,7 @@ function Instructions() {
                             animate={{ scale: 1, opacity: 1 }}
                             transition={{ duration: 0.7, delay: 0.3, ease: "easeOut" }}
                         >
-                            HackForge
+                            HackSail
                         </motion.h1>
                     </motion.div>
                     <motion.div 
