@@ -162,7 +162,7 @@ const VideoStream = () => {
                             <div className="bg-[#0a0a0a] p-4 rounded-full border border-[#c5a059] mb-4 shadow-[0_0_15px_rgba(197,160,89,0.3)]">
                                 <Ship className="w-8 h-8 text-[#f3e5ab]" />
                             </div>
-                            <h2 className="text-3xl font-['Pirata_One'] text-[#c5a059] mb-2">REGISTRATION OPEN ON</h2>
+                            <h2 className="text-3xl font-['Pirata_One'] text-[#c5a059] mb-2">REGISTRATION OPEN</h2>
                             <div className="h-px w-24 bg-[#8c6b30] my-4"></div>
                             <p className="text-[#a89f91] mb-2 uppercase tracking-widest text-sm">Port Gates Open On</p>
                             <p className="text-4xl font-bold text-[#f3e5ab] font-['Pirata_One']">18/02/2026</p>
