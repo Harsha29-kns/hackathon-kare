@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Anchor, Skull, Map, Compass, Sword, Shield, Clock, Lock, Trophy, Calendar, HelpCircle, Users, MessageCircle, ChevronDown, ChevronUp, Gem, ScrollText, Ship, Flag } from 'lucide-react';
+import { Anchor, Skull, Map, Compass, Sword, Shield, Clock, Lock, Trophy, Calendar, HelpCircle, Users, MessageCircle, ChevronDown, ChevronUp, Gem, ScrollText, Ship, Flag, Volume2, VolumeX } from 'lucide-react';
 import { io } from 'socket.io-client';
 import { motion, AnimatePresence, useMotionValue, useSpring } from 'framer-motion';
 import api from './api';
@@ -142,6 +142,54 @@ function Landing() {
     };
   }, []);
 
+  /* Audio Logic */
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = React.useRef(new Audio('/music/landing.mp3'));
+
+  useEffect(() => {
+    audioRef.current.loop = true;
+    audioRef.current.volume = 0.5;
+
+    const handleInteraction = async () => {
+      try {
+        await audioRef.current.play();
+        setIsPlaying(true);
+        document.removeEventListener('click', handleInteraction);
+      } catch (err) {
+        console.log("Interaction play failed:", err);
+      }
+    };
+
+    const playAudio = async () => {
+      try {
+        await audioRef.current.play();
+        setIsPlaying(true);
+      } catch (err) {
+        console.log("Autoplay blocked:", err);
+        setIsPlaying(false);
+        // Add interaction listener if autoplay fails
+        document.addEventListener('click', handleInteraction, { once: true });
+      }
+    };
+
+    playAudio();
+
+    return () => {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      document.removeEventListener('click', handleInteraction);
+    };
+  }, []);
+
+  const toggleAudio = () => {
+    if (isPlaying) {
+      audioRef.current.pause();
+    } else {
+      audioRef.current.play();
+    }
+    setIsPlaying(!isPlaying);
+  };
+
   const variants = {
     default: {
       height: 32,
@@ -221,11 +269,20 @@ function Landing() {
           <div className="text-3xl font-bold font-['Pirata_One'] text-[#c5a059] tracking-widest flex items-center gap-2" onMouseEnter={textEnter} onMouseLeave={textLeave}>
             <img src="/pirate.png" alt="Pirate Symbol" className="w-12 h-12 object-cover rounded-full border-2 border-[#c5a059]" /> HACKSAIL
           </div>
-          {showRegistrationButton && (
-            <Link to="/register" onMouseEnter={textEnter} onMouseLeave={textLeave} className="bg-[#c5a059] hover:bg-[#b08d48] text-black px-6 py-2 rounded font-bold font-['Pirata_One'] tracking-wide transition-all transform hover:scale-105 border-2 border-[#8c6b30] shadow-[0_0_15px_rgba(197,160,89,0.5)]">
-              Join the Crew
-            </Link>
-          )}
+          <div className="flex items-center gap-4">
+            <button
+              onClick={toggleAudio}
+              className="text-[#c5a059] hover:text-[#f3e5ab] transition-colors p-2 rounded-full border border-[#c5a059]/30 hover:border-[#c5a059] hover:bg-[#c5a059]/10"
+              onMouseEnter={textEnter} onMouseLeave={textLeave}
+            >
+              {isPlaying ? <Volume2 size={24} /> : <VolumeX size={24} />}
+            </button>
+            {showRegistrationButton && (
+              <Link to="/register" onMouseEnter={textEnter} onMouseLeave={textLeave} className="bg-[#c5a059] hover:bg-[#b08d48] text-black px-6 py-2 rounded font-bold font-['Pirata_One'] tracking-wide transition-all transform hover:scale-105 border-2 border-[#8c6b30] shadow-[0_0_15px_rgba(197,160,89,0.5)]">
+                Join the Crew
+              </Link>
+            )}
+          </div>
         </div>
       </nav>
 
