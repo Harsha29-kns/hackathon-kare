@@ -1,5 +1,20 @@
 @import "tailwindcss";
 
+@theme {
+  --font-pirate: "Pirata One", cursive;
+  --font-body: "Cinzel", serif;
+
+  --color-pirate-gold: #d4af37;
+  --color-pirate-gold-hover: #b8860b;
+  --color-pirate-wood: #1e1b18;
+  /* Darker wood for contrast */
+  --color-pirate-wood-light: #4a3b2a;
+  --color-pirate-parchment: #e6d2b5;
+  --color-pirate-ocean: #0f172a;
+  --color-pirate-red: #7f1d1d;
+}
+
+
 @font-face {
   font-family: Naruto;
   src: url('/public/font.ttf') format('truetype');

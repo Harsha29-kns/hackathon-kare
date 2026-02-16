@@ -128,7 +128,7 @@ function Landing() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-[#e0d4b4] overflow-hidden font-['Cinzel'] relative cursor-none" onMouseEnter={textLeave} onMouseLeave={textLeave}>
       {/* Custom Cursor */}
-       <motion.div
+      <motion.div
         className="fixed top-0 left-0 rounded-full pointer-events-none z-[100]"
         style={{
           translateX: cursorXSpring,
@@ -138,10 +138,10 @@ function Landing() {
         animate={cursorVariant}
         transition={{ type: "spring", stiffness: 500, damping: 28 }}
       />
-      
+
       {/* Background Ambience */}
       <div className="fixed inset-0 z-0 pointer-events-none">
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1547623641-d2c56c03e2a7?q=80&w=2070')] bg-cover bg-center opacity-30 mix-blend-overlay"></div>
+        <div className="absolute inset-0 bg-[url('/home-wall.jpg')] bg-cover bg-center opacity-50"></div>
         <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black"></div>
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-900/20 via-black/60 to-black"></div>
       </div>
@@ -168,9 +168,9 @@ function Landing() {
           transition={{ duration: 1 }}
         >
           <div className="flex items-center justify-center gap-6 mb-8" onMouseEnter={textEnter} onMouseLeave={textLeave}>
-             <img src="/scorecraft.jpg" alt="Scorecraft" className="w-20 h-20 md:w-24 md:h-24 rounded-full border-2 border-[#c5a059] shadow-[0_0_15px_rgba(197,160,89,0.3)]" />
-             <span className="text-4xl font-['Pirata_One'] text-[#c5a059]">X</span>
-             <img src="/coll.png" alt="College Logo" className="w-24 h-24 md:w-32 md:h-32 object-contain drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]" />
+            <img src="/scorecraft.jpg" alt="Scorecraft" className="w-20 h-20 md:w-24 md:h-24 rounded-full border-2 border-[#c5a059] shadow-[0_0_15px_rgba(197,160,89,0.3)]" />
+            <span className="text-4xl font-['Pirata_One'] text-[#c5a059]">X</span>
+            <img src="/coll.png" alt="College Logo" className="w-24 h-24 md:w-32 md:h-32 object-contain drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]" />
           </div>
           <h1 className="text-7xl md:text-9xl font-['Pirata_One'] mb-4 text-transparent bg-clip-text bg-gradient-to-b from-[#f3e5ab] to-[#c5a059] drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)]" onMouseEnter={textEnter} onMouseLeave={textLeave}>
             HACKSAIL 2K26
@@ -228,23 +228,23 @@ function Landing() {
               animate={{ opacity: 1 }}
               className="mb-12"
             >
-               <div className="relative inline-block p-8">
-                 <div className="absolute inset-0 border-[6px] border-[#8c6b30] rounded-sm pointer-events-none opacity-80"></div>
-                 <div className="absolute inset-2 border-[2px] border-[#c5a059] rounded-sm pointer-events-none opacity-60"></div>
-                 <div className="absolute -inset-2 border border-[#8c6b30]/50 rounded-sm pointer-events-none"></div>
-                 
-                 {/* Corner decorations */}
-                 <div className="absolute top-0 left-0 w-4 h-4 border-t-[6px] border-l-[6px] border-[#c5a059] -ml-1 -mt-1"></div>
-                 <div className="absolute top-0 right-0 w-4 h-4 border-t-[6px] border-r-[6px] border-[#c5a059] -mr-1 -mt-1"></div>
-                 <div className="absolute bottom-0 left-0 w-4 h-4 border-b-[6px] border-l-[6px] border-[#c5a059] -ml-1 -mb-1"></div>
-                 <div className="absolute bottom-0 right-0 w-4 h-4 border-b-[6px] border-r-[6px] border-[#c5a059] -mr-1 -mb-1"></div>
+              <div className="relative inline-block p-8">
+                <div className="absolute inset-0 border-[6px] border-[#8c6b30] rounded-sm pointer-events-none opacity-80"></div>
+                <div className="absolute inset-2 border-[2px] border-[#c5a059] rounded-sm pointer-events-none opacity-60"></div>
+                <div className="absolute -inset-2 border border-[#8c6b30]/50 rounded-sm pointer-events-none"></div>
 
-                 <div className="bg-[#1a1a1a]/90 p-10 rounded-lg backdrop-blur-md relative z-10 max-w-md mx-auto">
-                    <Lock className="w-12 h-12 text-[#5a5a5a] mx-auto mb-4" />
-                    <h2 className="text-3xl font-['Pirata_One'] text-[#a89f91] mb-2 tracking-wide">PORT CLOSED</h2>
-                    <p className="text-lg text-[#6b6b6b]">The harbor master has locked the gates.</p>
-                 </div>
-               </div>
+                {/* Corner decorations */}
+                <div className="absolute top-0 left-0 w-4 h-4 border-t-[6px] border-l-[6px] border-[#c5a059] -ml-1 -mt-1"></div>
+                <div className="absolute top-0 right-0 w-4 h-4 border-t-[6px] border-r-[6px] border-[#c5a059] -mr-1 -mt-1"></div>
+                <div className="absolute bottom-0 left-0 w-4 h-4 border-b-[6px] border-l-[6px] border-[#c5a059] -ml-1 -mb-1"></div>
+                <div className="absolute bottom-0 right-0 w-4 h-4 border-b-[6px] border-r-[6px] border-[#c5a059] -mr-1 -mb-1"></div>
+
+                <div className="bg-[#1a1a1a]/90 p-10 rounded-lg backdrop-blur-md relative z-10 max-w-md mx-auto">
+                  <Lock className="w-12 h-12 text-[#5a5a5a] mx-auto mb-4" />
+                  <h2 className="text-3xl font-['Pirata_One'] text-[#a89f91] mb-2 tracking-wide">PORT CLOSED</h2>
+                  <p className="text-lg text-[#6b6b6b]">The harbor master has locked the gates.</p>
+                </div>
+              </div>
             </motion.div>
           ) : (
             showRegistrationButton && (
@@ -378,42 +378,42 @@ function Landing() {
               <div className="text-3xl font-bold text-[#f3e5ab]">₹3,000</div>
               <div className="text-sm text-[#a05a2c] mt-2 font-bold uppercase tracking-widest">3rd Place</div>
             </motion.div>
-            </div>
+          </div>
 
-            {/* Participation Rewards */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              onMouseEnter={textEnter} onMouseLeave={textLeave}
-              className="mt-16 bg-[#1a1a1a] border-2 border-[#c5a059]/50 p-8 rounded-xl max-w-4xl mx-auto relative overflow-hidden"
-            >
-               <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/aged-paper.png')] opacity-10"></div>
-               <div className="relative z-10 flex flex-col md:flex-row items-center justify-center gap-8 text-center md:text-left">
-                  <div className="bg-[#0a0a0a] p-4 rounded-full border border-[#c5a059]">
-                     <ScrollText className="w-12 h-12 text-[#f3e5ab]" />
-                  </div>
-                  <div>
-                     <h3 className="text-3xl font-['Pirata_One'] text-[#c5a059] mb-2">TREASURE FOR ALL HANDS</h3>
-                     <p className="text-[#a89f91] text-lg font-['Cinzel']">
-                        Every sailor who braves the storm receives:
-                     </p>
-                     <ul className="text-[#f3e5ab] mt-2 font-bold tracking-wide space-y-1">
-                        <li className="flex items-center justify-center md:justify-start gap-2">
-                           <Gem size={16} className="text-[#c5a059]" /> Official Certificate of Participation
-                        </li>
-                        <li className="flex items-center justify-center md:justify-start gap-2">
-                           <Gem size={16} className="text-[#c5a059]" /> 2 EE Credits
-                        </li>
-                     </ul>
-                     <p className="text-[#5a5a5a] text-sm mt-3 italic">
-                        *Includes all winners (1st, 2nd, 3rd place)
-                     </p>
-                  </div>
-               </div>
-            </motion.div>
-         </div>
-       </section>
+          {/* Participation Rewards */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            onMouseEnter={textEnter} onMouseLeave={textLeave}
+            className="mt-16 bg-[#1a1a1a] border-2 border-[#c5a059]/50 p-8 rounded-xl max-w-4xl mx-auto relative overflow-hidden"
+          >
+            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/aged-paper.png')] opacity-10"></div>
+            <div className="relative z-10 flex flex-col md:flex-row items-center justify-center gap-8 text-center md:text-left">
+              <div className="bg-[#0a0a0a] p-4 rounded-full border border-[#c5a059]">
+                <ScrollText className="w-12 h-12 text-[#f3e5ab]" />
+              </div>
+              <div>
+                <h3 className="text-3xl font-['Pirata_One'] text-[#c5a059] mb-2">TREASURE FOR ALL HANDS</h3>
+                <p className="text-[#a89f91] text-lg font-['Cinzel']">
+                  Every sailor who braves the storm receives:
+                </p>
+                <ul className="text-[#f3e5ab] mt-2 font-bold tracking-wide space-y-1">
+                  <li className="flex items-center justify-center md:justify-start gap-2">
+                    <Gem size={16} className="text-[#c5a059]" /> Official Certificate of Participation
+                  </li>
+                  <li className="flex items-center justify-center md:justify-start gap-2">
+                    <Gem size={16} className="text-[#c5a059]" /> 2 EE Credits
+                  </li>
+                </ul>
+                <p className="text-[#5a5a5a] text-sm mt-3 italic">
+                  *Includes all winners (1st, 2nd, 3rd place)
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
 
       {/* Timeline Section */}
       <section className="relative z-10 py-24 bg-[#050505] overflow-hidden">
@@ -431,7 +431,8 @@ function Landing() {
               { time: "Day 1 - 09:00 AM", title: "Anchors Aweigh", desc: "Opening Ceremony & Team Formation", icon: Anchor },
               { time: "Day 1 - 10:00 AM", title: "Set Sail", desc: "Hacking Begins", icon: Ship },
               { time: "Day 1 - 01:00 PM", title: "Rations", desc: "Lunch Break", icon: ScrollText },
-              { time: "Day 1 - 06:00 PM", title: "High Seas", desc: "Mentoring Round 1", icon: Map },
+              { time: "Day 1 - 09:00 PM", title: "High Seas", desc: "Mentoring Round 1", icon: Map },
+              { time: "Day 2 - 5:00 AM", title: "High Seas", desc: "Mentoring Round 2", icon: Map },
               { time: "Day 2 - 08:00 AM", title: "Land Ho!", desc: "Hacking Ends & Submission", icon: Flag },
               { time: "Day 2 - 10:00 AM", title: "Victory Feast", desc: "Closing Ceremony & Prizes", icon: Gem }
             ].map((item, idx) => (
@@ -447,10 +448,10 @@ function Landing() {
                   <item.icon className="w-6 h-6 text-[#f3e5ab]" />
                 </div>
                 <div
-                      onMouseEnter={textEnter}
-                      onMouseLeave={textLeave}
-                      className={`w-5/12 p-6 bg-[#121212] border border-[#3a3a3a] rounded-xl hover:border-[#c5a059] transition-colors duration-300 relative group ${idx % 2 === 0 ? 'text-right' : 'text-left'}`}
-                    >
+                  onMouseEnter={textEnter}
+                  onMouseLeave={textLeave}
+                  className={`w-5/12 p-6 bg-[#121212] border border-[#3a3a3a] rounded-xl hover:border-[#c5a059] transition-colors duration-300 relative group ${idx % 2 === 0 ? 'text-right' : 'text-left'}`}
+                >
                   <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/aged-paper.png')] opacity-5 group-hover:opacity-10 transition-opacity"></div>
                   <div className="text-[#c5a059] font-bold text-sm mb-1 font-['Cinzel']">{item.time}</div>
                   <h3 className="text-xl font-['Pirata_One'] text-[#f3e5ab] mb-2">{item.title}</h3>
@@ -472,8 +473,8 @@ function Landing() {
 
           <div className="space-y-4">
             {[
-              { q: "Who can join the crew?", a: "Any student with a thirst for code and adventure. Teams of 2-4 members." },
-              { q: "Is there a bounty fee?", a: "Nay! Participation is free for all valid teams." },
+              { q: "Who can join the crew?", a: "Any student with a thirst for code and adventure. Teams of 2-5 members." },
+              { q: "Is there a bounty fee?", a: "Participation is need to pay 350 per person for all valid teams." },
               { q: "What should we bring aboard?", a: "Your laptops, chargers, and the spirit of a pirate. Food and drinks will be provided." },
               { q: "Can we start hacking before the signal?", a: "Negative. Any code written before the event starts will be walked the plank (disqualified)." }
             ].map((faq, idx) => (
@@ -519,24 +520,17 @@ function Landing() {
               The seas of code await. Set sail for glory and gold.
             </p>
           </div>
-          <div>
-            <h4 className="text-[#c5a059] font-bold mb-4 font-['Cinzel']">QUICK LINKS</h4>
-            <ul className="space-y-2 text-[#a89f91] text-sm">
-              <li><a href="#" className="hover:text-[#f3e5ab]" onMouseEnter={textEnter} onMouseLeave={textLeave}>Voyage Log</a></li>
-              <li><a href="#" className="hover:text-[#f3e5ab]" onMouseEnter={textEnter} onMouseLeave={textLeave}>The Code</a></li>
-              <li><a href="#" className="hover:text-[#f3e5ab]" onMouseEnter={textEnter} onMouseLeave={textLeave}>Prizes</a></li>
-            </ul>
-          </div>
+
           <div>
             <h4 className="text-[#c5a059] font-bold mb-4 font-['Cinzel']">JOIN THE FLEET</h4>
-            <a href="#" className="inline-flex items-center gap-2 text-[#a89f91] hover:text-[#f3e5ab] transition-colors" onMouseEnter={textEnter} onMouseLeave={textLeave}>
+            <a href="https://chat.whatsapp.com/KEwytcaTAL80hgW3l671h1" className="inline-flex items-center gap-2 text-[#a89f91] hover:text-[#f3e5ab] transition-colors" onMouseEnter={textEnter} onMouseLeave={textLeave}>
               <MessageCircle size={20} /> Join Discord / WhatsApp
             </a>
           </div>
         </div>
         <div className="border-t border-[#3a3a3a] pt-8 flex flex-col items-center">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <span className="text-[#5a5a5a] font-['Cinzel'] text-sm">&copy; 2025 </span>
+            <span className="text-[#5a5a5a] font-['Cinzel'] text-sm">&copy; 2026 </span>
             <div className="flex items-center gap-2" onMouseEnter={textEnter} onMouseLeave={textLeave}>
               <img src="/scorecraft.jpg" alt="Scorecraft Logo" className="w-8 h-8 rounded-full border border-[#5a5a5a]" />
               <span className="text-[#c5a059] font-['Pirata_One'] text-lg">SCORECRAFT</span>
