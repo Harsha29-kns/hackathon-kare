@@ -16,12 +16,11 @@ import QrScannerTeam from './components/QrScannerTeam';
 import AdminRegistrations from './AdminRegistrations';
 import Registration from './Registration';
 import PaymentPortal from './PaymentPortal';
-import VideoStream from './VideoStream';
 
 function App() {
   return (
     <Routes >
-      <Route path='/' element={<VideoStream/>} />
+      <Route path='/' element={<Landing />} />
       {/*<Route path='/' element={<Instructions/>}/>*/}
       <Route path='/home' element={<Landing />} />
       <Route path='/loginadmin' element={<Admin />} />

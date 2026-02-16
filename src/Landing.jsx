@@ -8,6 +8,8 @@ import api from './api';
 const socket = io(api);
 
 function Landing() {
+  const [isLoading, setIsLoading] = useState(true);
+
   const [registrationStatus, setRegistrationStatus] = useState({
     isClosed: true, // Default to closed to prevent flash of open
     openTime: null,
@@ -29,12 +31,41 @@ function Landing() {
 
   useEffect(() => {
     socket.on('registrationStatus', (status) => {
+      let initialCountingDown = false;
+      let initialCountdown = { days: 0, hours: 0, minutes: 0, seconds: 0 };
+
+      // Pre-calculate countdown state to prevent flash of "Port Closed"
+      if (status.openTime && status.isClosed) {
+        const now = new Date().getTime();
+        const openTime = new Date(status.openTime).getTime();
+        const distance = openTime - now;
+
+        if (distance > 0) {
+          initialCountingDown = true;
+          initialCountdown = {
+            days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+            hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+            minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+            seconds: Math.floor((distance % (1000 * 60)) / 1000)
+          };
+        }
+      }
+
       setRegistrationStatus({
         isClosed: status.isClosed,
         openTime: status.openTime,
         count: status.count || 0,
         limit: status.limit || 0,
       });
+
+      if (initialCountingDown) {
+        setCountdown(initialCountdown);
+        setIsCountingDown(true);
+      } else {
+        setIsCountingDown(false);
+      }
+
+      setIsLoading(false);
     });
 
     socket.emit('check');
@@ -42,9 +73,15 @@ function Landing() {
       socket.emit('check');
     }, 5000);
 
+    // Fallback to stop loading if socket is slow/fails
+    const timeout = setTimeout(() => {
+      setIsLoading(false);
+    }, 3000);
+
     return () => {
       socket.off('registrationStatus');
       clearInterval(statusCheckInterval);
+      clearTimeout(timeout);
     };
   }, []);
 
@@ -124,6 +161,38 @@ function Landing() {
 
   const textEnter = () => setCursorVariant("text");
   const textLeave = () => setCursorVariant("default");
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center font-['Pirata_One'] text-[#c5a059] relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('/home-wall.jpg')] bg-cover bg-center opacity-20 blur-sm"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black"></div>
+
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+          className="mb-8 relative z-10"
+        >
+          <Compass size={80} className="text-[#c5a059] drop-shadow-[0_0_15px_rgba(197,160,89,0.5)]" />
+        </motion.div>
+
+        <motion.h2
+          animate={{ opacity: [0.5, 1, 0.5] }}
+          transition={{ duration: 2, repeat: Infinity }}
+          className="text-3xl tracking-widest relative z-10"
+        >
+          Consulting the Stars...
+        </motion.h2>
+
+        <motion.div
+          initial={{ width: 0 }}
+          animate={{ width: "200px" }}
+          transition={{ duration: 2.5, repeat: Infinity }}
+          className="h-1 bg-[#8c6b30] mt-6 rounded-full relative z-10"
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-[#e0d4b4] overflow-hidden font-['Cinzel'] relative cursor-none" onMouseEnter={textLeave} onMouseLeave={textLeave}>
@@ -537,7 +606,7 @@ function Landing() {
             </div>
             <span className="text-[#5a5a5a] font-['Cinzel'] text-sm">. Dead men tell no tales.</span>
           </div>
-          <p className="text-[#4a4a4a] text-xs">
+          <p className="text-[#4a4a4a] text-base">
             Designed & Developed by <span className="text-[#c5a059]">Harsha</span> & <span className="text-[#c5a059]">Vamsi</span>
           </p>
         </div>
