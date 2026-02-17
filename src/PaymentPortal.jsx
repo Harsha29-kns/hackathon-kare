@@ -178,7 +178,7 @@ const PaymentPortal = () => {
                                     <img src="/qrURL.jpg" alt="Treasure Map QR" className="w-40 h-40 object-contain" />
                                 </div>
                                 <p className="text-xs text-pirate-gold/70 mt-3 flex items-center gap-1 font-cinzel">
-                                    <Smartphone size={14} /> Scan verification rune
+                                    <Smartphone size={14} /> Scan and Pay
                                 </p>
                             </div>
 

@@ -62,7 +62,7 @@ const Registration = () => {
         year: '',
         department: '',
         section: '',
-        phone: '',
+        phoneNumber: '',
         room: '',      // Added missing field
         type: '',      // Added missing field (Room Type)
         // Members (Array of 4)
@@ -195,7 +195,7 @@ const Registration = () => {
                                 <InputGroup variant="parchment" label="Captain's Name" name="name" value={formData.name} onChange={handleLeadChange} required disabled={isRegClosed} />
                                 <InputGroup variant="parchment" label="Official Email (@klu.ac.in)" name="email" type="email" value={formData.email} onChange={handleLeadChange} required disabled={isRegClosed} />
                                 <InputGroup variant="parchment" label="Reg.No" name="registrationNumber" type="text" inputMode="numeric" pattern="[0-9]*" value={formData.registrationNumber} onChange={handleLeadChange} required disabled={isRegClosed} />
-                                <InputGroup variant="parchment" label="Phone.no" name="phone" type="text" inputMode="numeric" pattern="[0-9]*" value={formData.phone} onChange={handleLeadChange} required disabled={isRegClosed} />
+                                <InputGroup variant="parchment" label="Phone.no" name="phoneNumber" type="text" inputMode="numeric" pattern="[0-9]*" value={formData.phoneNumber} onChange={handleLeadChange} required disabled={isRegClosed} />
 
                                 <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
                                     <SelectGroup variant="parchment" label="Quarters (Hostel)" name="type" value={formData.type} onChange={handleLeadChange} options={["Day Scholar", "LH-1", "LH-2", "LH-3", "LH-4", "MH-1", "MH-2", "MH-3", "MH-4", "MH-6"]} required disabled={isRegClosed} />

@@ -594,7 +594,7 @@ function Landing() {
 
           <div className="space-y-4">
             {[
-              { q: "Who can join the crew?", a: "Any student with a thirst for code and adventure. Teams of 2-5 members." },
+              { q: "Who can join the crew?", a: "Any student with a thirst for code and adventure. Teams of 5 members." },
               { q: "Is there a bounty fee?", a: "Participation is need to pay 350 per person for all valid teams." },
               { q: "What should we bring aboard?", a: "Your laptops, chargers, and the spirit of a pirate. Food and drinks will be provided." },
               { q: "Can we start hacking before the signal?", a: "Negative. Any code written before the event starts will be walked the plank (disqualified)." }
