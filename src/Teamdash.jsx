@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import api from "./api";
-import { io } from "socket.io-client";
+import socket from "./socket";
 import "driver.js/dist/driver.css";
 import Modal from 'react-modal';
 import MemoryFlipGame from "./MemoryFlipGame"; //game file
@@ -16,7 +16,6 @@ import king from "/public/king.png";
 import hackforge from "/public/hackforge.png";
 import narutoLeaf from '/public/present.png';
 import absent from '/public/ab.png';
-const socket = io(api);
 
 // --- MODAL STYLES ---
 const customModalStyles = {
@@ -43,7 +42,7 @@ const VideoBackground = () => (
 // --- MODAL COMPONENTS ---
 
 const QrModal = ({ isOpen, onClose, qrUrl, name }) => (
-    <Modal isOpen={isOpen} onRequestClose={onClose} style={{...customModalStyles, content: {...customModalStyles.content, width: '320px'}}} contentLabel="QR Code">
+    <Modal isOpen={isOpen} onRequestClose={onClose} style={{ ...customModalStyles, content: { ...customModalStyles.content, width: '320px' } }} contentLabel="QR Code">
         <div className="flex flex-col items-center justify-center gap-4">
             <h3 className="text-xl font-bold text-orange-400">{name}</h3>
             {qrUrl ? (
@@ -116,10 +115,10 @@ const AttendanceModal = ({ isOpen, onClose, team, attendanceIcon }) => {
             });
         });
     }
-    
+
 
     return (
-        <Modal isOpen={isOpen} onRequestClose={onClose} style={{...customModalStyles, content: {...customModalStyles.content, width: '950px'}}} contentLabel="Attendance Tracker" appElement={document.getElementById('root') || undefined}>
+        <Modal isOpen={isOpen} onRequestClose={onClose} style={{ ...customModalStyles, content: { ...customModalStyles.content, width: '950px' } }} contentLabel="Attendance Tracker" appElement={document.getElementById('root') || undefined}>
             <div className="flex justify-between items-center mb-4">
                 <div className="flex items-center gap-4">
                     <span className="text-4xl">📊</span>
@@ -156,7 +155,7 @@ const AttendanceModal = ({ isOpen, onClose, team, attendanceIcon }) => {
                                 <div className="grid grid-cols-7 gap-2">
                                     {rounds.map(round => (
                                         <div key={`member-${idx}-${round}`} className="flex flex-col items-center">
-                                             <span className="text-xs font-bold text-gray-400 mb-1">R{round}</span>
+                                            <span className="text-xs font-bold text-gray-400 mb-1">R{round}</span>
                                             {attendanceIcon(getAttendanceStatus(member, round))}
                                         </div>
                                     ))}
@@ -174,59 +173,59 @@ const AttendanceModal = ({ isOpen, onClose, team, attendanceIcon }) => {
 
 
 
-const ReminderModal = ({ isOpen, onClose, reminderText }) => ( <Modal isOpen={isOpen} onRequestClose={onClose} style={{...customModalStyles, content: {...customModalStyles.content, width: '850px'}}} contentLabel="Admin Reminder" appElement={document.getElementById('root') || undefined}> <div className="flex justify-between items-center mb-6"> <div className="flex items-center gap-3"> <span className="text-3xl animate-pulse">📢</span> <h2 className="text-2xl font-bold text-yellow-400 font-naruto">IMPORTANT REMINDER</h2> </div> <button onClick={onClose} className="text-gray-400 hover:text-white text-3xl">×</button> </div> <div className="text-center text-lg bg-gray-900/50 p-6 rounded-lg border border-yellow-500/50"> <p>{reminderText}</p> </div> <div className="mt-6 flex justify-end"> <button onClick={onClose} className="px-6 py-2 rounded-lg bg-orange-600 text-white hover:bg-orange-700">Acknowledged</button> </div> </Modal> );
-const AssistanceModal = ({ isOpen, onClose, isSubmittingIssue, issueError, issueText, setIssueText, handleIssueSubmit }) => ( <Modal isOpen={isOpen} onRequestClose={onClose} style={{...customModalStyles, content: {...customModalStyles.content, width: '850px'}}} contentLabel="Request Assistance" appElement={document.getElementById('root') || undefined}> <div className="text-white"> <div className="flex justify-between items-center mb-6"> <h2 className="text-2xl font-bold text-orange-400 font-naruto">Request Assistance</h2> <button onClick={onClose} className="text-gray-400 hover:text-white text-3xl" disabled={isSubmittingIssue}>×</button> </div> {issueError && ( <div className="bg-red-900/50 text-red-300 p-3 rounded-lg mb-4 text-center">{issueError}</div> )} <p className="text-gray-300 mb-4">If you have a technical problem or need help, please describe it below. Our team will reach you shortly.</p> <textarea value={issueText} onChange={(e) => setIssueText(e.target.value)} placeholder="Describe your problem here..." className="w-full h-40 p-4 bg-gray-700 border border-gray-600 rounded-xl" disabled={isSubmittingIssue} /> <div className="mt-6 flex justify-end gap-4"> <button onClick={onClose} className="px-6 py-2 rounded-lg border border-gray-600 hover:bg-gray-700" disabled={isSubmittingIssue}>Cancel</button> <button onClick={handleIssueSubmit} className="px-6 py-2 rounded-lg bg-orange-600 text-white hover:bg-orange-700 disabled:opacity-50" disabled={isSubmittingIssue || !issueText.trim()}> {isSubmittingIssue ? 'Submitting...' : 'Submit Request'} </button> </div> </div> </Modal> );
+const ReminderModal = ({ isOpen, onClose, reminderText }) => (<Modal isOpen={isOpen} onRequestClose={onClose} style={{ ...customModalStyles, content: { ...customModalStyles.content, width: '850px' } }} contentLabel="Admin Reminder" appElement={document.getElementById('root') || undefined}> <div className="flex justify-between items-center mb-6"> <div className="flex items-center gap-3"> <span className="text-3xl animate-pulse">📢</span> <h2 className="text-2xl font-bold text-yellow-400 font-naruto">IMPORTANT REMINDER</h2> </div> <button onClick={onClose} className="text-gray-400 hover:text-white text-3xl">×</button> </div> <div className="text-center text-lg bg-gray-900/50 p-6 rounded-lg border border-yellow-500/50"> <p>{reminderText}</p> </div> <div className="mt-6 flex justify-end"> <button onClick={onClose} className="px-6 py-2 rounded-lg bg-orange-600 text-white hover:bg-orange-700">Acknowledged</button> </div> </Modal>);
+const AssistanceModal = ({ isOpen, onClose, isSubmittingIssue, issueError, issueText, setIssueText, handleIssueSubmit }) => (<Modal isOpen={isOpen} onRequestClose={onClose} style={{ ...customModalStyles, content: { ...customModalStyles.content, width: '850px' } }} contentLabel="Request Assistance" appElement={document.getElementById('root') || undefined}> <div className="text-white"> <div className="flex justify-between items-center mb-6"> <h2 className="text-2xl font-bold text-orange-400 font-naruto">Request Assistance</h2> <button onClick={onClose} className="text-gray-400 hover:text-white text-3xl" disabled={isSubmittingIssue}>×</button> </div> {issueError && (<div className="bg-red-900/50 text-red-300 p-3 rounded-lg mb-4 text-center">{issueError}</div>)} <p className="text-gray-300 mb-4">If you have a technical problem or need help, please describe it below. Our team will reach you shortly.</p> <textarea value={issueText} onChange={(e) => setIssueText(e.target.value)} placeholder="Describe your problem here..." className="w-full h-40 p-4 bg-gray-700 border border-gray-600 rounded-xl" disabled={isSubmittingIssue} /> <div className="mt-6 flex justify-end gap-4"> <button onClick={onClose} className="px-6 py-2 rounded-lg border border-gray-600 hover:bg-gray-700" disabled={isSubmittingIssue}>Cancel</button> <button onClick={handleIssueSubmit} className="px-6 py-2 rounded-lg bg-orange-600 text-white hover:bg-orange-700 disabled:opacity-50" disabled={isSubmittingIssue || !issueText.trim()}> {isSubmittingIssue ? 'Submitting...' : 'Submit Request'} </button> </div> </div> </Modal>);
 
 const customModalStyles2 = {
-  content: {
-    top: '50%',
-    left: '50%',
-    right: 'auto',
-    bottom: 'auto',
-    marginRight: '-50%',
-    transform: 'translate(-50%, -50%)',
-    background: '#1f2937', 
-    border: '1px solid #4b5563',
-    borderRadius: '0.75rem', // rounded-lg
-    
-    padding: '1.5rem', // p-6, a base padding for the content
-  },
-  overlay: {
-    backgroundColor: 'rgba(17, 24, 39, 0.85)',
-    zIndex: 50,
-  }
+    content: {
+        top: '50%',
+        left: '50%',
+        right: 'auto',
+        bottom: 'auto',
+        marginRight: '-50%',
+        transform: 'translate(-50%, -50%)',
+        background: '#1f2937',
+        border: '1px solid #4b5563',
+        borderRadius: '0.75rem', // rounded-lg
+
+        padding: '1.5rem', // p-6, a base padding for the content
+    },
+    overlay: {
+        backgroundColor: 'rgba(17, 24, 39, 0.85)',
+        zIndex: 50,
+    }
 };
 
 // --- NEW CONFIRMATION MODAL COMPONENT ---
 const ConfirmModal = ({ isOpen, onClose, onConfirm, isSubmitting, title, children }) => {
     return (
-    <Modal
-     isOpen={isOpen}
-     onRequestClose={() => !isSubmitting && onClose()}
-      style={{...customModalStyles, content: {...customModalStyles.content, width: '500px'}}}
-       contentLabel="Confirmation Modal"
-        appElement={document.getElementById('root') || undefined}
-         >
-             <div className="flex flex-col gap-4">
-                 <h2 className="text-2xl font-bold text-yellow-400 font-naruto">{title}</h2>
-                  <div className="text-gray-300 bg-gray-900/50 p-4 rounded-lg border border-yellow-500/30">
-                   {children}
-                    </div>
-                     <div className="mt-2 flex justify-end gap-4">
-                         <button onClick={onClose} className="px-6 py-2 rounded-lg border border-gray-600 hover:bg-gray-700" disabled={isSubmitting}>
-                             Cancel
-                              </button>
-                               <button
-                                onClick={onConfirm}
-                                 className="px-6 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
-                                  disabled={isSubmitting}
-                                   >
-                                     {isSubmitting ? 'Submitting...' : 'Confirm and Submit'}
-                                      </button>
-                                       </div>
-                                        </div>
-                                         </Modal>
-                                         );
+        <Modal
+            isOpen={isOpen}
+            onRequestClose={() => !isSubmitting && onClose()}
+            style={{ ...customModalStyles, content: { ...customModalStyles.content, width: '500px' } }}
+            contentLabel="Confirmation Modal"
+            appElement={document.getElementById('root') || undefined}
+        >
+            <div className="flex flex-col gap-4">
+                <h2 className="text-2xl font-bold text-yellow-400 font-naruto">{title}</h2>
+                <div className="text-gray-300 bg-gray-900/50 p-4 rounded-lg border border-yellow-500/30">
+                    {children}
+                </div>
+                <div className="mt-2 flex justify-end gap-4">
+                    <button onClick={onClose} className="px-6 py-2 rounded-lg border border-gray-600 hover:bg-gray-700" disabled={isSubmitting}>
+                        Cancel
+                    </button>
+                    <button
+                        onClick={onConfirm}
+                        className="px-6 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
+                        disabled={isSubmitting}
+                    >
+                        {isSubmitting ? 'Submitting...' : 'Confirm and Submit'}
+                    </button>
+                </div>
+            </div>
+        </Modal>
+    );
 };
 
 
@@ -266,13 +265,13 @@ const DomainSelectionModal = ({ isOpen, onClose, isSubmitting, selectedSet, doma
             isOpen={isOpen}
             onRequestClose={onClose}
             // THE ONLY CHANGE: Make the modal width responsive.
-            style={{ 
-                ...customModalStyles2, 
-                content: { 
-                    ...customModalStyles2.content, 
-                    width: '90vw', 
+            style={{
+                ...customModalStyles2,
+                content: {
+                    ...customModalStyles2.content,
+                    width: '90vw',
                     maxWidth: '1100px'
-                } 
+                }
             }}
             contentLabel="Domain Selection"
             appElement={document.getElementById('root') || undefined}
@@ -314,8 +313,8 @@ const DomainSelectionModal = ({ isOpen, onClose, isSubmitting, selectedSet, doma
                                     ${selectedDomain === domain.id
                                         ? 'bg-orange-600/80 border-orange-400 scale-[1.02]'
                                         : domain.slots === 0
-                                        ? 'bg-gray-800 border-gray-700 opacity-50 cursor-not-allowed'
-                                        : 'bg-gray-800 border-gray-600 hover:bg-gray-700 hover:border-orange-500 cursor-pointer'
+                                            ? 'bg-gray-800 border-gray-700 opacity-50 cursor-not-allowed'
+                                            : 'bg-gray-800 border-gray-600 hover:bg-gray-700 hover:border-orange-500 cursor-pointer'
                                     }`
                                 }
                             >
@@ -337,19 +336,19 @@ const GameModal = ({ isOpen, onClose, onGameEnd, isSubmitting }) => (
     <Modal
         isOpen={isOpen}
         onRequestClose={onClose}
-        style={{...customModalStyles, content: {...customModalStyles.content, width: 'auto', maxWidth: '500px'}}}
+        style={{ ...customModalStyles, content: { ...customModalStyles.content, width: 'auto', maxWidth: '500px' } }}
         contentLabel="Memory Flip Game"
         appElement={document.getElementById('root') || undefined}
     >
         <div className="relative">
             {isSubmitting && (
-               <div className="absolute inset-0 bg-gray-900/80 flex flex-col justify-center items-center rounded-lg z-20">
+                <div className="absolute inset-0 bg-gray-900/80 flex flex-col justify-center items-center rounded-lg z-20">
                     <img src={lod} className="w-40 h-40" alt="Loading..." />
                     <p className="text-orange-400 font-naruto text-2xl mt-4">Saving Your Score...</p>
                 </div>
             )}
             <div className="flex justify-end">
-               <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors text-3xl font-light" disabled={isSubmitting}>×</button>
+                <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors text-3xl font-light" disabled={isSubmitting}>×</button>
             </div>
             <MemoryFlipGame onGameEnd={onGameEnd} />
         </div>
@@ -360,37 +359,37 @@ const GameModal = ({ isOpen, onClose, onGameEnd, isSubmitting }) => (
 const AttendanceInfo = ({ onOpenModal }) => {
     return (
         <div
-    onClick={onOpenModal}
-    className="group relative bg-black/50 border border-orange-500/30 rounded-lg p-6 flex flex-col items-center justify-center text-center h-48 w-full cursor-pointer overflow-hidden transition-all duration-300 hover:border-orange-400 hover:bg-black/70 hover:shadow-lg hover:shadow-orange-500/20"
->
-    {/* --- Decorative Corner Brackets --- */}
-    <div className="absolute top-0 left-0 w-full h-full p-2">
-        <span className="absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 border-orange-500/60 group-hover:border-orange-400 transition-colors duration-300"></span>
-        <span className="absolute top-2 right-2 w-4 h-4 border-t-2 border-r-2 border-orange-500/60 group-hover:border-orange-400 transition-colors duration-300"></span>
-        <span className="absolute bottom-2 left-2 w-4 h-4 border-b-2 border-l-2 border-orange-500/60 group-hover:border-orange-400 transition-colors duration-300"></span>
-        <span className="absolute bottom-2 right-2 w-4 h-4 border-b-2 border-r-2 border-orange-500/60 group-hover:border-orange-400 transition-colors duration-300"></span>
-    </div>
+            onClick={onOpenModal}
+            className="group relative bg-black/50 border border-orange-500/30 rounded-lg p-6 flex flex-col items-center justify-center text-center h-48 w-full cursor-pointer overflow-hidden transition-all duration-300 hover:border-orange-400 hover:bg-black/70 hover:shadow-lg hover:shadow-orange-500/20"
+        >
+            {/* --- Decorative Corner Brackets --- */}
+            <div className="absolute top-0 left-0 w-full h-full p-2">
+                <span className="absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 border-orange-500/60 group-hover:border-orange-400 transition-colors duration-300"></span>
+                <span className="absolute top-2 right-2 w-4 h-4 border-t-2 border-r-2 border-orange-500/60 group-hover:border-orange-400 transition-colors duration-300"></span>
+                <span className="absolute bottom-2 left-2 w-4 h-4 border-b-2 border-l-2 border-orange-500/60 group-hover:border-orange-400 transition-colors duration-300"></span>
+                <span className="absolute bottom-2 right-2 w-4 h-4 border-b-2 border-r-2 border-orange-500/60 group-hover:border-orange-400 transition-colors duration-300"></span>
+            </div>
 
-    {/* --- Content --- */}
-    <div className="relative z-10 flex flex-col items-center justify-center gap-3">
-        {/* Large Icon with Glow */}
-        <div className="relative">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-orange-400 transition-all duration-300 group-hover:text-orange-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-            </svg>
-            {/* Glow effect */}
-            <div className="absolute inset-0 -z-10 bg-orange-500 rounded-full blur-xl opacity-0 group-hover:opacity-40 transition-opacity duration-300"></div>
+            {/* --- Content --- */}
+            <div className="relative z-10 flex flex-col items-center justify-center gap-3">
+                {/* Large Icon with Glow */}
+                <div className="relative">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-orange-400 transition-all duration-300 group-hover:text-orange-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    {/* Glow effect */}
+                    <div className="absolute inset-0 -z-10 bg-orange-500 rounded-full blur-xl opacity-0 group-hover:opacity-40 transition-opacity duration-300"></div>
+                </div>
+
+                {/* Title and Call to Action */}
+                <h2 className="text-xl font-bold font-naruto text-orange-400 tracking-wider">
+                    ATTENDANCE
+                </h2>
+                <p className="text-sm font-semibold text-gray-400 group-hover:text-white transition-colors duration-300 tracking-widest">
+                    VIEW LOG
+                </p>
+            </div>
         </div>
-
-        {/* Title and Call to Action */}
-        <h2 className="text-xl font-bold font-naruto text-orange-400 tracking-wider">
-            ATTENDANCE
-        </h2>
-        <p className="text-sm font-semibold text-gray-400 group-hover:text-white transition-colors duration-300 tracking-widest">
-            VIEW LOG
-        </p>
-    </div>
-</div>
     );
 };
 
@@ -441,7 +440,7 @@ function Teamdash() {
 
     //const handleDomainTimerEnd = useCallback(() => {
     //setDomainOpen(true);
-//}, []);
+    //}, []);
 
 
 
@@ -500,7 +499,7 @@ function Teamdash() {
                 socket.off('login:error');
             });
     };
-    
+
     const refreshTeamData = async () => {
         const token = localStorage.getItem("token");
         if (!token) {
@@ -589,19 +588,19 @@ function Teamdash() {
         socket.emit("getGameStatus");
 
         const timeUpdater = setInterval(() => {
-        setCurrentTime(new Date());
-        if (gameOpenTime && new Date() > new Date(gameOpenTime)) {
-            setIsGameOpen(true);
-        }
+            setCurrentTime(new Date());
+            if (gameOpenTime && new Date() > new Date(gameOpenTime)) {
+                setIsGameOpen(true);
+            }
 
-        if (puzzleOpenTime && new Date() > new Date(puzzleOpenTime)) {
-            setIsPuzzleOpen(true);
-        }
-        if (domainOpenTime && new Date() > new Date(domainOpenTime)) {
-            setDomainOpen(true);
-        }
-        if (barGameOpenTime && new Date() > new Date(barGameOpenTime)) setIsBarGameOpen(true);
-    }, 1000);
+            if (puzzleOpenTime && new Date() > new Date(puzzleOpenTime)) {
+                setIsPuzzleOpen(true);
+            }
+            if (domainOpenTime && new Date() > new Date(domainOpenTime)) {
+                setDomainOpen(true);
+            }
+            if (barGameOpenTime && new Date() > new Date(barGameOpenTime)) setIsBarGameOpen(true);
+        }, 1000);
 
 
 
@@ -633,7 +632,7 @@ function Teamdash() {
         };*/}
 
 
-        
+
 
         const handleDomainSelected = (data) => {
             setIsSubmittingDomain(false);
@@ -678,11 +677,11 @@ function Teamdash() {
         const handleForceLogout = (data) => {
             setLogoutMessage(data.message);
             setTimeout(() => {
-                handleLogout(); 
-                nav('/teamdash'); 
+                handleLogout();
+                nav('/teamdash');
                 // Clear the message after navigation to prevent it from reappearing
-                setLogoutMessage(''); 
-            }, 3000); 
+                setLogoutMessage('');
+            }, 3000);
         };
         socket.on('forceLogout', handleForceLogout);
 
@@ -712,7 +711,7 @@ function Teamdash() {
             socket.off("stopTheBarStatusUpdate", handleStopTheBarStatusUpdate);
             socket.off('forceLogout', handleForceLogout);
         };
-    }, [team, domainOpenTime, gameOpenTime, puzzleOpenTime, barGameOpenTime]); 
+    }, [team, domainOpenTime, gameOpenTime, puzzleOpenTime, barGameOpenTime]);
     const handleBarGameEnd = async (score) => {
         if (!team || team.stopTheBarPlayed) return;
         setIsSubmittingBarScore(true);
@@ -735,14 +734,15 @@ function Teamdash() {
     };
 
     const handleIssueSubmit = async () => { setIsSubmittingIssue(true); setIssueError(""); try { await axios.post(`${api}/Hack/issue/${team._id}`, { issueText: issueText.trim() }); setIsAssistanceModalOpen(false); setIssueText(""); refreshTeamData(); } catch (err) { setIssueError("Failed to submit request. Please try again later."); } finally { setIsSubmittingIssue(false); } };
-    const handleDomain = async () => { setIsSubmittingDomain(true);
+    const handleDomain = async () => {
+        setIsSubmittingDomain(true);
         socket.emit("domainSelected",
             { teamId: team._id, domain: selectedDomain });
-         };
+    };
     const handleSetClick = (set) => { setSelectedSet(set); setIsDomainModalOpen(true); setIsDomainListLoading(true); socket.emit("client:getDomains", ""); };
 
     const handleLogout = () => {
-        
+
         if (team) {
             socket.emit('team:logout');
         }
@@ -754,9 +754,9 @@ function Teamdash() {
 
     const attendanceIcon = (status) => {
         switch (status) {
-            case "Present": return ( <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center mx-auto"><img src={narutoLeaf} alt="Present" className="w-5 h-5"/></div> );
-            case "Absent": return ( <div className="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center mx-auto"><img src={absent} alt="Absent" className="w-5 h-5"/></div> );
-            default: return ( <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center mx-auto"><span className="text-gray-400 text-sm font-bold">?</span></div> );
+            case "Present": return (<div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center mx-auto"><img src={narutoLeaf} alt="Present" className="w-5 h-5" /></div>);
+            case "Absent": return (<div className="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center mx-auto"><img src={absent} alt="Absent" className="w-5 h-5" /></div>);
+            default: return (<div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center mx-auto"><span className="text-gray-400 text-sm font-bold">?</span></div>);
         }
     };
 
@@ -772,7 +772,7 @@ function Teamdash() {
             const errorMsg = err.response?.data?.error || "There was an error submitting your score.";
             alert(errorMsg);
             setIsSubmittingGameScore(false);
-            if (err.response?.status === 403) { setIsGameModalOpen(false);  }
+            if (err.response?.status === 403) { setIsGameModalOpen(false); }
         }
     };
     const handlePuzzleEnd = async (score) => {
@@ -803,7 +803,7 @@ function Teamdash() {
     };
 
 
-    
+
     if (!team && !loading) {
         return (
             <div className="min-h-screen flex flex-col justify-center items-center text-white p-4 font-sans overflow-hidden">
@@ -823,9 +823,9 @@ function Teamdash() {
                         </div>
 
                         {error && (
-                             <div className="bg-red-500/20 border border-red-500 text-red-300 px-4 py-3 rounded-lg mb-6 text-sm text-center" role="alert">
-                                 <p>{error}</p>
-                             </div>
+                            <div className="bg-red-500/20 border border-red-500 text-red-300 px-4 py-3 rounded-lg mb-6 text-sm text-center" role="alert">
+                                <p>{error}</p>
+                            </div>
                         )}
 
                         <div className="space-y-6">
@@ -880,7 +880,7 @@ function Teamdash() {
         ? DomainData.find(ps => ps.name === team.Domain)
         : null;
 
-    
+
 
     const attendanceRounds = [
         { round: 1, time: '09:30 AM' },
@@ -892,7 +892,7 @@ function Teamdash() {
         { round: 7, time: '11:30 PM' }
     ];
 
-    const intelFeed = [ ...(reminders?.map(r => ({ ...r, type: 'reminder', timestamp: new Date(r.time) })) || []), ...(team?.issues?.map(i => ({ ...i, type: 'issue', timestamp: new Date(i.timestamp) })) || []) ].sort((a, b) => b.timestamp - a.timestamp);
+    const intelFeed = [...(reminders?.map(r => ({ ...r, type: 'reminder', timestamp: new Date(r.time) })) || []), ...(team?.issues?.map(i => ({ ...i, type: 'issue', timestamp: new Date(i.timestamp) })) || [])].sort((a, b) => b.timestamp - a.timestamp);
 
     return (
         <div className="min-h-screen text-gray-200 font-sans bg-gray-900" style={{ backgroundImage: `url('https://www.pixelstalk.net/wp-content/uploads/2016/06/Dark-Wallpaper-HD-Desktop.jpg')`, backgroundSize: 'cover', backgroundAttachment: 'fixed' }}>
@@ -906,46 +906,46 @@ function Teamdash() {
                 </div>
             )}
             <ConfirmModal
-            isOpen={isConfirmModalOpen}
-            onClose={() => setIsConfirmModalOpen(false)}
-            onConfirm={handleDomain}
-            isSubmitting={isSubmittingDomain}
-            title="Final Confirmation"
-        >
-            <p>You have selected the Problem Statement:</p>
-            <p className="text-xl font-bold text-orange-400 my-2 text-center">
-                {DomainData.find(d => d.id === selectedDomain)?.name || "Unknown"}
-            </p>
-            <p className="text-center"> 
-                Be careful! This is your <strong className="text-red-400">final decision</strong>. 
-                After this, your team cannot switch to a different project.
-            </p>
-        </ConfirmModal>
+                isOpen={isConfirmModalOpen}
+                onClose={() => setIsConfirmModalOpen(false)}
+                onConfirm={handleDomain}
+                isSubmitting={isSubmittingDomain}
+                title="Final Confirmation"
+            >
+                <p>You have selected the Problem Statement:</p>
+                <p className="text-xl font-bold text-orange-400 my-2 text-center">
+                    {DomainData.find(d => d.id === selectedDomain)?.name || "Unknown"}
+                </p>
+                <p className="text-center">
+                    Be careful! This is your <strong className="text-red-400">final decision</strong>.
+                    After this, your team cannot switch to a different project.
+                </p>
+            </ConfirmModal>
 
             <QrModal isOpen={!!viewingQr} onClose={() => setViewingQr(null)} qrUrl={viewingQr?.url} name={viewingQr?.name} />
             <ReminderModal isOpen={isReminderModalOpen} onClose={() => setIsReminderModalOpen(false)} reminderText={activeReminder} />
             <AssistanceModal isOpen={isAssistanceModalOpen} onClose={() => setIsAssistanceModalOpen(false)} isSubmittingIssue={isSubmittingIssue} issueError={issueError} issueText={issueText} setIssueText={setIssueText} handleIssueSubmit={handleIssueSubmit} />
             {team && <AttendanceModal isOpen={isAttendanceModalOpen} onClose={() => setIsAttendanceModalOpen(false)} team={team} attendanceIcon={attendanceIcon} />}
-            <DomainSelectionModal isOpen={isDomainModalOpen} onClose={() => setIsDomainModalOpen(false)} isSubmitting={isSubmittingDomain} selectedSet={selectedSet} domainData={DomainData} selectedDomain={selectedDomain} handleSelect={setSelectedDomain}  handleSubmit={() => setIsConfirmModalOpen(true)} isLoading={isDomainListLoading} />
+            <DomainSelectionModal isOpen={isDomainModalOpen} onClose={() => setIsDomainModalOpen(false)} isSubmitting={isSubmittingDomain} selectedSet={selectedSet} domainData={DomainData} selectedDomain={selectedDomain} handleSelect={setSelectedDomain} handleSubmit={() => setIsConfirmModalOpen(true)} isLoading={isDomainListLoading} />
             <GameModal isOpen={isGameModalOpen} onClose={() => !isSubmittingGameScore && setIsGameModalOpen(false)} onGameEnd={handleGameEnd} isSubmitting={isSubmittingGameScore} />
-            <Modal isOpen={isNumberPuzzleModalOpen} onRequestClose={() => !isSubmittingPuzzleScore && setIsNumberPuzzleModalOpen(false)} style={{...customModalStyles, content: {...customModalStyles.content, width: 'auto', maxWidth: '500px'}}} contentLabel="Number Puzzle Game">
+            <Modal isOpen={isNumberPuzzleModalOpen} onRequestClose={() => !isSubmittingPuzzleScore && setIsNumberPuzzleModalOpen(false)} style={{ ...customModalStyles, content: { ...customModalStyles.content, width: 'auto', maxWidth: '500px' } }} contentLabel="Number Puzzle Game">
                 <div className="relative">
                     {isSubmittingPuzzleScore && (
-                       <div className="absolute inset-0 bg-gray-900/80 flex flex-col justify-center items-center rounded-lg z-20">
+                        <div className="absolute inset-0 bg-gray-900/80 flex flex-col justify-center items-center rounded-lg z-20">
                             <img src={lod} className="w-40 h-40" alt="Loading..." />
                             <p className="text-orange-400 font-naruto text-2xl mt-4">Saving Your Score...</p>
                         </div>
                     )}
                     <div className="flex justify-end">
-                       <button onClick={() => setIsNumberPuzzleModalOpen(false)} className="text-gray-400 hover:text-white transition-colors text-3xl font-light" disabled={isSubmittingPuzzleScore}>×</button>
+                        <button onClick={() => setIsNumberPuzzleModalOpen(false)} className="text-gray-400 hover:text-white transition-colors text-3xl font-light" disabled={isSubmittingPuzzleScore}>×</button>
                     </div>
                     <NumberPuzzleGame onGameEnd={handlePuzzleEnd} />
                 </div>
             </Modal>
-            <Modal isOpen={isStopTheBarModalOpen} onRequestClose={() => !isSubmittingBarScore && setIsStopTheBarModalOpen(false)} style={{...customModalStyles, content: {...customModalStyles.content, width: 'auto', maxWidth: '520px'}}} contentLabel="Stop The Bar Game">
+            <Modal isOpen={isStopTheBarModalOpen} onRequestClose={() => !isSubmittingBarScore && setIsStopTheBarModalOpen(false)} style={{ ...customModalStyles, content: { ...customModalStyles.content, width: 'auto', maxWidth: '520px' } }} contentLabel="Stop The Bar Game">
                 <div className="relative">
                     {isSubmittingBarScore && (
-                       <div className="absolute inset-0 bg-gray-900/80 flex flex-col justify-center items-center rounded-lg z-20">
+                        <div className="absolute inset-0 bg-gray-900/80 flex flex-col justify-center items-center rounded-lg z-20">
                             <img src={lod} className="w-40 h-40" alt="Loading..." />
                             <p className="text-orange-400 font-naruto text-2xl mt-4">Saving Your Score...</p>
                         </div>
@@ -958,43 +958,43 @@ function Teamdash() {
             {(loading || !team) ? (
                 <div className="relative z-20 flex items-center justify-center h-screen">
                     <div className="text-center">
-                        <img src={lod} className="w-48 h-48 mx-auto" alt="Loading"/>
+                        <img src={lod} className="w-48 h-48 mx-auto" alt="Loading" />
                         <p className="text-xl font-naruto text-orange-400 mt-4">Loading Mission...</p>
                     </div>
                 </div>
             ) : (
                 <div className="relative z-10 flex flex-col h-screen">
-                            <header className="flex-shrink-0 bg-black/30 backdrop-blur-lg border-b border-orange-500/30">
-                            <div className="container mx-auto px-6 py-3 flex items-center justify-between">
+                    <header className="flex-shrink-0 bg-black/30 backdrop-blur-lg border-b border-orange-500/30">
+                        <div className="container mx-auto px-6 py-3 flex items-center justify-between">
 
-                                {/* Left Section: Logo + Sector */}
-                                <div className="flex items-center space-x-4">
+                            {/* Left Section: Logo + Sector */}
+                            <div className="flex items-center space-x-4">
                                 <img src={hackforge} className="h-10" alt="Hackforge Icon" />
                                 <p className="text-sm text-gray-400 italic">
                                     Sector{" "}
                                     <span className="font-mono font-bold text-gray-200">
-                                    {team.Sector}
+                                        {team.Sector}
                                     </span>
                                 </p>
-                                </div>
-
-                                {/* Center Section: Team Name */}
-                                <h1 className="text-2xl font-bold text-orange-400 font-naruto tracking-widest text-center">
-                                {team.teamname}
-                                </h1>
-
-                                {/* Right Section: Logout */}
-                                <div className="flex items-center gap-4">
-                                
-                                <button
-                                onClick={handleLogout}
-                                className="bg-red-600/80 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md"
-                                >
-                                Logout
-                                </button>
-                                </div>
                             </div>
-                            </header>
+
+                            {/* Center Section: Team Name */}
+                            <h1 className="text-2xl font-bold text-orange-400 font-naruto tracking-widest text-center">
+                                {team.teamname}
+                            </h1>
+
+                            {/* Right Section: Logout */}
+                            <div className="flex items-center gap-4">
+
+                                <button
+                                    onClick={handleLogout}
+                                    className="bg-red-600/80 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md"
+                                >
+                                    Logout
+                                </button>
+                            </div>
+                        </div>
+                    </header>
 
 
                     <main className="flex-grow max-w-7xl mx-auto px-6 pt-8 pb-6 w-full overflow-y-auto">
@@ -1002,69 +1002,69 @@ function Teamdash() {
 
                             {/* 1. Squad */}
                             <div className="bg-slate-800/70 backdrop-blur-sm border border-cyan-500/30 rounded-lg p-5 font-sans">
-    <div className="pb-4 mb-4">
-        <h2 className="text-2xl font-bold text-cyan-300 tracking-wider">SQUAD ROSTER</h2>
-    </div>
+                                <div className="pb-4 mb-4">
+                                    <h2 className="text-2xl font-bold text-cyan-300 tracking-wider">SQUAD ROSTER</h2>
+                                </div>
 
-    {/* Grid Container */}
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Team Lead Banner (Spans full width) */}
-        <div className="md:col-span-2 flex items-center justify-between p-4 bg-gray-900/50 rounded-lg border border-cyan-500/50">
-            <div className="flex items-center gap-4">
-                {/* Avatar with Star Icon */}
-                <div className="relative">
-                    <span className="w-12 h-12 flex items-center justify-center bg-cyan-500/20 rounded-full font-bold text-cyan-300 text-xl">
-                        {team.name && team.name.trim().charAt(0)}
-                    </span>
-                    <span className="absolute -bottom-1 -right-1 text-lg">⭐</span>
-                </div>
-                {/* Lead Info */}
-                <div>
-                    <p className="font-bold text-lg text-white">{team.name}</p>
-                    <p className="text-sm text-cyan-400/70">{team.registrationNumber}</p>
-                </div>
-            </div>
-            {/* QR Code */}
-            {team.lead?.qrCode && (
-                <button 
-                    onClick={() => setViewingQr({ url: team.lead.qrCode, name: team.name })} 
-                    className="bg-white p-1 rounded-lg hover:scale-105 transition-transform"
-                >
-                    <img src={team.lead.qrCode} alt="QR Code" className="w-14 h-14" />
-                </button>
-            )}
-        </div>
+                                {/* Grid Container */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {/* Team Lead Banner (Spans full width) */}
+                                    <div className="md:col-span-2 flex items-center justify-between p-4 bg-gray-900/50 rounded-lg border border-cyan-500/50">
+                                        <div className="flex items-center gap-4">
+                                            {/* Avatar with Star Icon */}
+                                            <div className="relative">
+                                                <span className="w-12 h-12 flex items-center justify-center bg-cyan-500/20 rounded-full font-bold text-cyan-300 text-xl">
+                                                    {team.name && team.name.trim().charAt(0)}
+                                                </span>
+                                                <span className="absolute -bottom-1 -right-1 text-lg">⭐</span>
+                                            </div>
+                                            {/* Lead Info */}
+                                            <div>
+                                                <p className="font-bold text-lg text-white">{team.name}</p>
+                                                <p className="text-sm text-cyan-400/70">{team.registrationNumber}</p>
+                                            </div>
+                                        </div>
+                                        {/* QR Code */}
+                                        {team.lead?.qrCode && (
+                                            <button
+                                                onClick={() => setViewingQr({ url: team.lead.qrCode, name: team.name })}
+                                                className="bg-white p-1 rounded-lg hover:scale-105 transition-transform"
+                                            >
+                                                <img src={team.lead.qrCode} alt="QR Code" className="w-14 h-14" />
+                                            </button>
+                                        )}
+                                    </div>
 
-        {/* Team Member Cards */}
-        {team.teamMembers.map((member, i) => (
-            <div 
-                key={i} 
-                className="group relative flex items-center justify-center h-28 bg-gray-900/50 rounded-lg overflow-hidden cursor-pointer"
-            >
-                {/* Member Info (Visible by default) */}
-                <div className="flex flex-col items-center gap-2 transition-opacity duration-300 group-hover:opacity-0">
-                    <span className="w-10 h-10 flex items-center justify-center bg-gray-700 rounded-full font-semibold text-gray-300">
-                        {member.name && member.name.trim().charAt(0)}
-                    </span>
-                    <div>
-                        <p className="font-semibold text-center text-gray-200">{member.name}</p>
-                        <p className="text-xs text-center text-gray-400">{member.registrationNumber}</p>
-                    </div>
-                </div>
+                                    {/* Team Member Cards */}
+                                    {team.teamMembers.map((member, i) => (
+                                        <div
+                                            key={i}
+                                            className="group relative flex items-center justify-center h-28 bg-gray-900/50 rounded-lg overflow-hidden cursor-pointer"
+                                        >
+                                            {/* Member Info (Visible by default) */}
+                                            <div className="flex flex-col items-center gap-2 transition-opacity duration-300 group-hover:opacity-0">
+                                                <span className="w-10 h-10 flex items-center justify-center bg-gray-700 rounded-full font-semibold text-gray-300">
+                                                    {member.name && member.name.trim().charAt(0)}
+                                                </span>
+                                                <div>
+                                                    <p className="font-semibold text-center text-gray-200">{member.name}</p>
+                                                    <p className="text-xs text-center text-gray-400">{member.registrationNumber}</p>
+                                                </div>
+                                            </div>
 
-                {/* QR Code (Visible on hover) */}
-                {member.qrCode && (
-                    <div 
-                        onClick={() => setViewingQr({ url: member.qrCode, name: member.name })}
-                        className="absolute inset-0 flex items-center justify-center p-2 bg-gray-800 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                    >
-                        <img src={member.qrCode} alt="QR Code" className="w-24 h-24" />
-                    </div>
-                )}
-            </div>
-        ))}
-    </div>
-</div>
+                                            {/* QR Code (Visible on hover) */}
+                                            {member.qrCode && (
+                                                <div
+                                                    onClick={() => setViewingQr({ url: member.qrCode, name: member.name })}
+                                                    className="absolute inset-0 flex items-center justify-center p-2 bg-gray-800 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                                                >
+                                                    <img src={member.qrCode} alt="QR Code" className="w-24 h-24" />
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
                             {/* 2. Problem Statements (Mission Control) */}
                             <div className="bg-black/20 rounded-lg border border-gray-700/50 p-5">
                                 <h2 className="text-xl font-bold font-naruto text-orange-400 border-b-2 border-orange-500/30 pb-2 mb-4">MISSION CONTROL</h2>
@@ -1076,29 +1076,29 @@ function Teamdash() {
                                             <p className="text-base text-gray-300">{selectedProblemStatement.description}</p>
                                         </div>
                                     ) :
-                                    team.Domain ? (
-                                        <p className="text-center text-3xl font-bold text-green-400 py-2">{team.Domain}</p>
-                                    ) : (
-                                        DomainOpen ? (
-                                            [...new Set(DomainData.map(item => item.set))].length > 0 ? (
-                                                <div className="flex gap-2 justify-center">
-                                                    <button onClick={() => handleSetClick("Set 1")} className="w-full py-3 bg-orange-600 hover:bg-orange-700 rounded-lg font-bold">Campus Community Problem Statements</button>
-                                                    <button onClick={() => handleSetClick("Set 2")} className="w-full py-3 bg-orange-600 hover:bg-orange-700 rounded-lg font-bold">Lifestyle & Productivity Problem Statements</button>
-                                                </div>
+                                        team.Domain ? (
+                                            <p className="text-center text-3xl font-bold text-green-400 py-2">{team.Domain}</p>
+                                        ) : (
+                                            DomainOpen ? (
+                                                [...new Set(DomainData.map(item => item.set))].length > 0 ? (
+                                                    <div className="flex gap-2 justify-center">
+                                                        <button onClick={() => handleSetClick("Set 1")} className="w-full py-3 bg-orange-600 hover:bg-orange-700 rounded-lg font-bold">Campus Community Problem Statements</button>
+                                                        <button onClick={() => handleSetClick("Set 2")} className="w-full py-3 bg-orange-600 hover:bg-orange-700 rounded-lg font-bold">Lifestyle & Productivity Problem Statements</button>
+                                                    </div>
+                                                ) : (
+                                                    <p className="text-center text-gray-400 animate-pulse">Loading statements sets...</p>
+                                                )
                                             ) : (
-                                                <p className="text-center text-gray-400 animate-pulse">Loading statements sets...</p>
+                                                domainOpenTime ? (
+                                                    <CountdownTimer targetTime={domainOpenTime} />
+                                                ) : (
+                                                    <div className="text-center text-gray-400 flex flex-col items-center justify-center gap-3 h-full">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>
+                                                        <p className="font-semibold text-lg">Problem Statement selection is currently closed.</p>
+                                                    </div>
+                                                )
                                             )
-                                        ) : (
-                                            domainOpenTime ? (
-                                            <CountdownTimer targetTime={domainOpenTime} />
-                                        ) : (
-                                            <div className="text-center text-gray-400 flex flex-col items-center justify-center gap-3 h-full">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>
-                                                    <p className="font-semibold text-lg">Problem Statement selection is currently closed.</p>
-                                                </div>
-                                            )
-                                        )
-                                    )}
+                                        )}
                                 </div>
                             </div>
 
@@ -1107,44 +1107,44 @@ function Teamdash() {
                                 <h2 className="text-xl font-bold font-naruto text-orange-400 border-b-2 border-orange-500/30 pb-2 mb-4">SIDE QUESTS</h2>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                     <button
-                                       onClick={() => setIsGameModalOpen(true)}
-                                       disabled={team.memoryGamePlayed || !isGameOpen}
-                                       className="w-full p-4 bg-indigo-600/80 hover:bg-indigo-600 rounded-lg text-center font-bold disabled:opacity-70 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-3 min-h-[72px]"
+                                        onClick={() => setIsGameModalOpen(true)}
+                                        disabled={team.memoryGamePlayed || !isGameOpen}
+                                        className="w-full p-4 bg-indigo-600/80 hover:bg-indigo-600 rounded-lg text-center font-bold disabled:opacity-70 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-3 min-h-[72px]"
                                     >
-                                       {team.memoryGamePlayed ? ( <span className="text-lg">Flip Game Score: {team.memoryGameScore}</span> ) : isGameOpen ? ( <span className="text-lg">Memory Flip Challenge</span> ) : (
+                                        {team.memoryGamePlayed ? (<span className="text-lg">Flip Game Score: {team.memoryGameScore}</span>) : isGameOpen ? (<span className="text-lg">Memory Flip Challenge</span>) : (
                                             <>
                                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                                                 <span className="text-base">Game will Unlock at {formatUnlockTime(gameOpenTime)}</span>
                                             </>
-                                       )}
+                                        )}
                                     </button>
                                     <button
-                                       onClick={() => setIsStopTheBarModalOpen(true)}
-                                       disabled={team.stopTheBarPlayed || !isBarGameOpen}
-                                       className="w-full p-4 bg-pink-600/80 hover:bg-pink-700 rounded-lg text-center font-bold disabled:opacity-70 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-3 min-h-[72px]"
+                                        onClick={() => setIsStopTheBarModalOpen(true)}
+                                        disabled={team.stopTheBarPlayed || !isBarGameOpen}
+                                        className="w-full p-4 bg-pink-600/80 hover:bg-pink-700 rounded-lg text-center font-bold disabled:opacity-70 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-3 min-h-[72px]"
                                     >
-                                       {team.stopTheBarPlayed ? (
+                                        {team.stopTheBarPlayed ? (
                                             <span className="text-lg"> Sequence Challenge Score: {team.stopTheBarScore}</span>
-                                       ) : isBarGameOpen ? (
+                                        ) : isBarGameOpen ? (
                                             <span className="text-lg">Sequence Challenge</span>
-                                       ) : (
+                                        ) : (
                                             <>
                                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                                                 <span className="text-base">Game will Unlock at {formatUnlockTime(barGameOpenTime)}</span>
                                             </>
-                                       )}
+                                        )}
                                     </button>
                                     <button
-                                       onClick={() => setIsNumberPuzzleModalOpen(true)}
-                                       disabled={team.numberPuzzlePlayed || !isPuzzleOpen}
-                                       className="w-full p-4 bg-teal-600/80 hover:bg-teal-700 rounded-lg text-center font-bold disabled:opacity-70 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-3 min-h-[72px]"
+                                        onClick={() => setIsNumberPuzzleModalOpen(true)}
+                                        disabled={team.numberPuzzlePlayed || !isPuzzleOpen}
+                                        className="w-full p-4 bg-teal-600/80 hover:bg-teal-700 rounded-lg text-center font-bold disabled:opacity-70 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-3 min-h-[72px]"
                                     >
-                                       {team.numberPuzzlePlayed ? ( <span className="text-lg">Puzzle Score: {team.numberPuzzleScore}</span> ) : isPuzzleOpen ? ( <span className="text-lg">Number Puzzle Challenge</span> ) : (
-                                                <>
-                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-                                                    <span className="text-base">Game will Unlock at {formatUnlockTime(puzzleOpenTime)}</span>
-                                                </>
-                                       )}
+                                        {team.numberPuzzlePlayed ? (<span className="text-lg">Puzzle Score: {team.numberPuzzleScore}</span>) : isPuzzleOpen ? (<span className="text-lg">Number Puzzle Challenge</span>) : (
+                                            <>
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                                                <span className="text-base">Game will Unlock at {formatUnlockTime(puzzleOpenTime)}</span>
+                                            </>
+                                        )}
                                     </button>
                                 </div>
                             </div>
@@ -1155,76 +1155,76 @@ function Teamdash() {
                                 <AttendanceInfo rounds={attendanceRounds} currentTime={currentTime} onOpenModal={() => setIsAttendanceModalOpen(true)} />
 
                                 {/* Intel Feed */}
-                               <div className="bg-black rounded-lg shadow-sm border border-gray-700 p-6 flex flex-col font-sans text-white">
-    {/* Header with Title and Actions */}
-    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-gray-700">
-        <div>
-            <h2 className="text-lg font-bold text-gray-100">Activity Log</h2>
-            <p className="text-sm text-gray-400">Recent events and notifications.</p>
-        </div>
-        <div className="mt-3 sm:mt-0 flex flex-shrink-0 gap-2">
-            {pptData && (
-                <a
-                    href={pptData.fileUrl}
-                    download
-                    className="px-4 py-2 text-sm font-semibold bg-gray-800 text-gray-100 hover:bg-gray-700 rounded-md transition-colors"
-                >
-                    Download "{pptData.fileName}"
-                </a>
-            )}
-            <button
-                onClick={() => setIsAssistanceModalOpen(true)}
-                className="px-4 py-2 text-sm font-semibold bg-blue-700 text-white hover:bg-blue-600 rounded-md transition-colors"
-            >
-                Request Help
-            </button>
-        </div>
-    </div>
+                                <div className="bg-black rounded-lg shadow-sm border border-gray-700 p-6 flex flex-col font-sans text-white">
+                                    {/* Header with Title and Actions */}
+                                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-gray-700">
+                                        <div>
+                                            <h2 className="text-lg font-bold text-gray-100">Activity Log</h2>
+                                            <p className="text-sm text-gray-400">Recent events and notifications.</p>
+                                        </div>
+                                        <div className="mt-3 sm:mt-0 flex flex-shrink-0 gap-2">
+                                            {pptData && (
+                                                <a
+                                                    href={pptData.fileUrl}
+                                                    download
+                                                    className="px-4 py-2 text-sm font-semibold bg-gray-800 text-gray-100 hover:bg-gray-700 rounded-md transition-colors"
+                                                >
+                                                    Download "{pptData.fileName}"
+                                                </a>
+                                            )}
+                                            <button
+                                                onClick={() => setIsAssistanceModalOpen(true)}
+                                                className="px-4 py-2 text-sm font-semibold bg-blue-700 text-white hover:bg-blue-600 rounded-md transition-colors"
+                                            >
+                                                Request Help
+                                            </button>
+                                        </div>
+                                    </div>
 
-    {/* Feed Timeline */}
-    <div className="mt-6 space-y-1 overflow-y-auto pr-2 flex-grow min-h-[250px]">
-        {intelFeed.length > 0 ? (
-            <ul>
-                {intelFeed.map((item, index) => (
-                    <li key={index} className="flex gap-4 my-5">
-                        {/* Icon and Timeline line */}
-                        <div className="flex flex-col items-center">
-                            <span className={`flex items-center justify-center w-8 h-8 rounded-full ${item.type === 'reminder' ? 'bg-yellow-800/50 text-yellow-300' : 'bg-blue-800/50 text-blue-300'}`}>
-                                {item.type === 'reminder' ? '💡' : '🎟️'}
-                            </span>
-                            {index < intelFeed.length - 1 && <div className="w-px h-full bg-gray-700 mt-2"></div>}
-                        </div>
+                                    {/* Feed Timeline */}
+                                    <div className="mt-6 space-y-1 overflow-y-auto pr-2 flex-grow min-h-[250px]">
+                                        {intelFeed.length > 0 ? (
+                                            <ul>
+                                                {intelFeed.map((item, index) => (
+                                                    <li key={index} className="flex gap-4 my-5">
+                                                        {/* Icon and Timeline line */}
+                                                        <div className="flex flex-col items-center">
+                                                            <span className={`flex items-center justify-center w-8 h-8 rounded-full ${item.type === 'reminder' ? 'bg-yellow-800/50 text-yellow-300' : 'bg-blue-800/50 text-blue-300'}`}>
+                                                                {item.type === 'reminder' ? '💡' : '🎟️'}
+                                                            </span>
+                                                            {index < intelFeed.length - 1 && <div className="w-px h-full bg-gray-700 mt-2"></div>}
+                                                        </div>
 
-                        {/* Content */}
-                        <div className="flex-1">
-                            {item.type === 'reminder' ? (
-                                <>
-                                    <p className="font-semibold text-gray-100">Admin Reminder</p>
-                                    <p className="text-sm text-gray-300">{item.message}</p>
-                                </>
-                            ) : (
-                                <>
-                                    <p className="font-semibold text-gray-100">Support Request</p>
-                                    <p className="text-sm text-gray-300 my-1 p-2 bg-gray-900 rounded border border-gray-700 italic">"{item.text}"</p>
-                                    <span className={`text-xs px-2 py-0.5 rounded-full ${item.status === 'Resolved' ? 'bg-green-800/50 text-green-300' : 'bg-yellow-800/50 text-yellow-300'}`}>
-                                        {item.status}
-                                    </span>
-                                </>
-                            )}
-                            <p className="text-xs text-gray-500 mt-1">{item.timestamp.toLocaleString()}</p>
-                        </div>
-                    </li>
-                ))}
-            </ul>
-        ) : (
-            <div className="text-center text-gray-500 pt-16">
-                <span className="text-4xl">📭</span>
-                <p className="mt-2 font-semibold">The log is empty</p>
-                <p className="text-sm">There are no new events to display.</p>
-            </div>
-        )}
-    </div>
-</div>
+                                                        {/* Content */}
+                                                        <div className="flex-1">
+                                                            {item.type === 'reminder' ? (
+                                                                <>
+                                                                    <p className="font-semibold text-gray-100">Admin Reminder</p>
+                                                                    <p className="text-sm text-gray-300">{item.message}</p>
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    <p className="font-semibold text-gray-100">Support Request</p>
+                                                                    <p className="text-sm text-gray-300 my-1 p-2 bg-gray-900 rounded border border-gray-700 italic">"{item.text}"</p>
+                                                                    <span className={`text-xs px-2 py-0.5 rounded-full ${item.status === 'Resolved' ? 'bg-green-800/50 text-green-300' : 'bg-yellow-800/50 text-yellow-300'}`}>
+                                                                        {item.status}
+                                                                    </span>
+                                                                </>
+                                                            )}
+                                                            <p className="text-xs text-gray-500 mt-1">{item.timestamp.toLocaleString()}</p>
+                                                        </div>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        ) : (
+                                            <div className="text-center text-gray-500 pt-16">
+                                                <span className="text-4xl">📭</span>
+                                                <p className="mt-2 font-semibold">The log is empty</p>
+                                                <p className="text-sm">There are no new events to display.</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
 
                         </div>

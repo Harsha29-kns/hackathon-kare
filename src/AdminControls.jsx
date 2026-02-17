@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { io } from "socket.io-client";
 import api from "./api";
+import socket from "./socket";
 import { Clock, Unlock, Lock, Users, Gamepad2, Target } from "lucide-react";
-
-
-const socket = io(api);
 
 function AdminControls() {
 

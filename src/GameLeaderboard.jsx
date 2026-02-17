@@ -1,11 +1,8 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import api from "./api";
-import { io } from "socket.io-client"; 
+import socket from "./socket";
 import king from "/public/king.png";
-
-
-const socket = io(api);
 
 // --- Helper component for the main list ---
 const RankListItem = ({ team, rank }) => (
@@ -53,7 +50,7 @@ function GameLeaderboard() {
         };
     }, []);
 
-    
+
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[#0a0f2c] to-[#120b2e] text-white">
@@ -61,10 +58,10 @@ function GameLeaderboard() {
             </div>
         );
     }
-    
+
     if (error) {
         return (
-             <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[#0a0f2c] to-[#120b2e] text-white">
+            <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[#0a0f2c] to-[#120b2e] text-white">
                 <div className="text-xl font-semibold text-red-400">{error}</div>
             </div>
         )
@@ -115,7 +112,7 @@ function GameLeaderboard() {
                 )}
 
                 {theRest.length > 0 && (
-                     <div className="space-y-2">
+                    <div className="space-y-2">
                         <div className="grid grid-cols-12 items-center gap-4 px-4 text-xs font-bold text-gray-400 uppercase">
                             <p className="col-span-1">Rank</p>
                             <p className="col-span-4">Team</p>

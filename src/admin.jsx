@@ -1,16 +1,13 @@
 import { useEffect, useState, useRef, useMemo } from "react";
 import axios from "axios";
 import api from "./api";
-import { io } from "socket.io-client";
+import socket from "./socket";
 import { useNavigate } from "react-router-dom";
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import Papa from "papaparse";
 import JSZip from 'jszip';
 import { Gem, ArrowLeft, ArrowRight } from "lucide-react";
-
-
-const socket = io(api);
 
 
 const Notification = ({ message, type, onClear }) => {

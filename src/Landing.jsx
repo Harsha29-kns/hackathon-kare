@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Anchor, Skull, Map, Compass, Sword, Shield, Clock, Lock, Trophy, Calendar, HelpCircle, Users, MessageCircle, ChevronDown, ChevronUp, Gem, ScrollText, Ship, Flag, Volume2, VolumeX } from 'lucide-react';
-import { io } from 'socket.io-client';
+import socket from './socket';
 import { motion, AnimatePresence, useMotionValue, useSpring } from 'framer-motion';
 import api from './api';
-
-const socket = io(api);
 
 function Landing() {
   const [isLoading, setIsLoading] = useState(true);

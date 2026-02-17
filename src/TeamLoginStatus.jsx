@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { io } from 'socket.io-client';
 import api from './api';
 import axios from 'axios';
-
-const socket = io(api);
+import socket from './socket';
 
 const TeamLoginStatus = () => {
     const [teams, setTeams] = useState([]);

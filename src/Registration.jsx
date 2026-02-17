@@ -3,10 +3,8 @@ import axios from 'axios';
 import api from './api';
 import { useNavigate } from 'react-router-dom';
 import { Users, User, Phone, Map, Skull, Anchor, Scroll, Compass, Volume2, VolumeX } from 'lucide-react';
-import { io } from 'socket.io-client';
+import socket from './socket';
 import RegistrationSuccess from './RegistrationSuccess';
-
-const socket = io(api);
 
 const Registration = () => {
     const navigate = useNavigate();
