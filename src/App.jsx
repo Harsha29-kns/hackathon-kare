@@ -16,6 +16,7 @@ import QrScannerTeam from './components/QrScannerTeam';
 import AdminRegistrations from './AdminRegistrations';
 import Registration from './Registration';
 import PaymentPortal from './PaymentPortal';
+import ClosingRegister from './ClosingRegister';
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
       <Route path='/register' element={<Registration />} />
       <Route path='/admin-registrations' element={<AdminRegistrations />} />
       <Route path='/payment-portal' element={<PaymentPortal />} />
+      <Route path='/closing-register' element={<ClosingRegister />} />
     </Routes>
   );
 }
