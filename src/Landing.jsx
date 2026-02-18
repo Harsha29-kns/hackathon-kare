@@ -365,7 +365,7 @@ function Landing() {
 
                 <div className="bg-[#1a1a1a]/90 p-10 rounded-lg backdrop-blur-md relative z-10 max-w-md mx-auto">
                   <Lock className="w-12 h-12 text-[#5a5a5a] mx-auto mb-4" />
-                  <h2 className="text-3xl font-['Pirata_One'] text-[#a89f91] mb-2 tracking-wide">PORT CLOSED</h2>
+                  <h2 className="text-3xl font-['Pirata_One'] text-[#a89f91] mb-2 tracking-wide">Slots Full</h2>
                   <p className="text-lg text-[#6b6b6b]">The harbor master has locked the gates.</p>
                 </div>
               </div>
