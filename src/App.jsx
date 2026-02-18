@@ -36,7 +36,7 @@ function App() {
       <Route path='/jjudge-leaderboard' element={<JudgeLeaderboard />} />
       <Route path="/status" element={<TeamLoginStatus />} />
       <Route path="/team-qr-scanner" element={<QrScannerTeam />} />
-      <Route path='/registerrrrrrs' element={<Registration />} />
+      <Route path='/reg' element={<Registration />} />
       <Route path='/admin-registrations' element={<AdminRegistrations />} />
       <Route path='/payment-portal' element={<PaymentPortal />} />
     </Routes>
