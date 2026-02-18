@@ -21,7 +21,8 @@ import ClosingRegister from './ClosingRegister';
 function App() {
   return (
     <Routes >
-      <Route path='/' element={<Landing />} />
+      {/*<Route path='/' element={<Landing />} />*/}
+      <Route path='/' element={<ClosingRegister />} />
       {/*<Route path='/' element={<Instructions/>}/>*/}
       <Route path='/home' element={<Landing />} />
       <Route path='/loginadmin' element={<Admin />} />
@@ -38,7 +39,6 @@ function App() {
       <Route path='/register' element={<Registration />} />
       <Route path='/admin-registrations' element={<AdminRegistrations />} />
       <Route path='/payment-portal' element={<PaymentPortal />} />
-      <Route path='/closing-register' element={<ClosingRegister />} />
     </Routes>
   );
 }
