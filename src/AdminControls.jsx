@@ -18,6 +18,7 @@ function AdminControls() {
   const [isRegClosed, setIsRegClosed] = useState(false);
   const [isFirstReviewOpen, setIsFirstReviewOpen] = useState(false);
   const [isSecondReviewOpen, setIsSecondReviewOpen] = useState(false);
+  const [isEditDetailsOpen, setIsEditDetailsOpen] = useState(false);
 
   // --- Registration Handlers ---
   const handleSetRegLimit = () => {
@@ -144,6 +145,14 @@ function AdminControls() {
     return () => {
       socket.off('reviewStatusUpdate');
     };
+  }, []);
+
+  useEffect(() => {
+    socket.on('editDetailsStatusUpdate', (data) => {
+      setIsEditDetailsOpen(data.isEditDetailsOpen);
+    });
+    socket.emit('getEditDetailsStatus');
+    return () => socket.off('editDetailsStatusUpdate');
   }, []);
 
   return (
@@ -283,6 +292,27 @@ function AdminControls() {
                 <input type="datetime-local" onChange={(e) => setStopTheBarTime(e.target.value)} className="flex-1 px-4 py-2 rounded-lg bg-gray-800 border border-gray-600 shadow-sm focus:ring-2 focus:ring-red-400 text-white" />
                 <button onClick={handleSetStopTheBarTime} className="bg-red-500 text-white hover:bg-red-600 px-6 py-2 rounded-lg font-semibold transition shadow-md">Set Timer</button>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* --- Edit Details Toggle Section --- */}
+        <section className="bg-gray-900/70 backdrop-blur-md p-6 rounded-2xl shadow-lg mb-8 border border-gray-700">
+          <div className="flex items-center gap-3 mb-4">
+            <Unlock className="text-cyan-400 h-7 w-7" />
+            <h2 className="text-2xl font-semibold">Edit Details Controls</h2>
+          </div>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <p className="text-lg">Edit Details Status:</p>
+              <span className={`px-3 py-1 rounded-full text-sm font-semibold ${isEditDetailsOpen ? 'bg-green-500/30 text-green-300' : 'bg-red-500/30 text-red-300'}`}>
+                {isEditDetailsOpen ? 'OPEN' : 'CLOSED'}
+              </span>
+            </div>
+            <p className="text-gray-500 text-sm">Control whether students can access the <strong>/edit-details</strong> page to update their registration info.</p>
+            <div className="flex gap-4">
+              <button onClick={() => socket.emit('admin:setEditDetailsState', true)} className="flex-1 bg-green-600 hover:bg-green-700 px-6 py-2 rounded-lg font-semibold transition flex items-center justify-center gap-2"><Unlock size={16} /> Open Edit Details</button>
+              <button onClick={() => socket.emit('admin:setEditDetailsState', false)} className="flex-1 bg-red-600 hover:bg-red-700 px-6 py-2 rounded-lg font-semibold transition flex items-center justify-center gap-2"><Lock size={16} /> Close Edit Details</button>
             </div>
           </div>
         </section>

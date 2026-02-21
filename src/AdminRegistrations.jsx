@@ -8,6 +8,7 @@ function AdminRegistrations() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("underVerification");
   const [verifyingId, setVerifyingId] = useState(null);
+  const [generatingQRId, setGeneratingQRId] = useState(null);
   const [bulkSending, setBulkSending] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingTeam, setEditingTeam] = useState(null);
@@ -33,18 +34,33 @@ function AdminRegistrations() {
   const underVerificationTeams = teams.filter(t => !t.verified && t.imgUrl);
   const verifiedTeams = teams.filter(t => t.verified);
 
-  // Action: Verify Single Team
+  // Action: Verify Single Team (no QR/pass — just approves)
   const handleVerify = async (teamId) => {
-    if (!window.confirm("Are you sure you want to verify this team?")) return;
+    if (!window.confirm("Are you sure you want to verify this team? An approval email will be sent.")) return;
     setVerifyingId(teamId);
     try {
       await axios.post(`${api}/Hack/verify/${teamId}`);
-      alert("Team Verified Successfully!");
+      alert("Team Verified! Approval email sent. Use 'Generate QR & Pass' when ready to send credentials.");
       fetchTeams();
     } catch (error) {
       alert("Verification Failed: " + (error.response?.data?.error || error.message));
     } finally {
       setVerifyingId(null);
+    }
+  };
+
+  // Action: Generate QR codes + password for a verified team
+  const handleGenerateQRPass = async (teamId) => {
+    if (!window.confirm("Generate QR codes and a login password for this team? This will email them their credentials.")) return;
+    setGeneratingQRId(teamId);
+    try {
+      await axios.post(`${api}/Hack/generate-qr-pass/${teamId}`);
+      alert("✅ QR codes and password generated! Credentials emailed to the team.");
+      fetchTeams();
+    } catch (error) {
+      alert("Generation Failed: " + (error.response?.data?.error || error.message));
+    } finally {
+      setGeneratingQRId(null);
     }
   };
 
@@ -161,7 +177,7 @@ function AdminRegistrations() {
           ))}
 
           {activeTab === "verified" && verifiedTeams.map(team => (
-            <TeamCard key={team._id} team={team} type="verified" onEdit={handleEditClick} />
+            <TeamCard key={team._id} team={team} type="verified" onEdit={handleEditClick} onGenerateQR={handleGenerateQRPass} generatingQRId={generatingQRId} />
           ))}
 
           {/* Empty States */}
@@ -331,7 +347,7 @@ function AdminRegistrations() {
 }
 
 // Reusable Card Component
-const TeamCard = ({ team, type, onAction, loadingId, onEdit }) => (
+const TeamCard = ({ team, type, onAction, loadingId, onEdit, onGenerateQR, generatingQRId }) => (
   <div className="bg-gray-900 border border-gray-800 p-5 rounded-xl shadow-lg hover:border-gray-700 transition-all flex flex-col h-full">
     {/* Header */}
     <div className="flex justify-between items-start mb-4">
@@ -397,7 +413,7 @@ const TeamCard = ({ team, type, onAction, loadingId, onEdit }) => (
     </div>
 
     {/* Actions */}
-    <div className="mt-auto">
+    <div className="mt-auto space-y-2">
       {type === "registered" && (
         <button
           onClick={() => onAction(team._id)}
@@ -416,9 +432,23 @@ const TeamCard = ({ team, type, onAction, loadingId, onEdit }) => (
         </button>
       )}
       {type === "verified" && (
-        <div className="w-full text-center text-green-500 font-semibold py-2 bg-green-900/10 rounded-lg border border-green-900/30 text-sm">
-          Verified Status Active
-        </div>
+        <>
+          <div className="w-full text-center text-green-500 font-semibold py-2 bg-green-900/10 rounded-lg border border-green-900/30 text-sm">
+            ✓ Verified
+          </div>
+          <button
+            onClick={() => onGenerateQR(team._id)}
+            disabled={generatingQRId === team._id}
+            className="w-full bg-purple-700 hover:bg-purple-600 text-white font-semibold py-2.5 rounded-lg transition-colors disabled:opacity-50 flex justify-center items-center gap-2 text-sm"
+          >
+            {generatingQRId === team._id
+              ? <><Loader2 className="animate-spin" size={16} /> Generating...</>
+              : team.password
+                ? "↻ Re-generate QR & Pass"
+                : "⊕ Generate QR & Pass"
+            }
+          </button>
+        </>
       )}
     </div>
   </div>
