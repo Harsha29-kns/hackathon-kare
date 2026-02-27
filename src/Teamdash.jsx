@@ -393,7 +393,51 @@ const AttendanceInfo = ({ onOpenModal }) => {
     );
 };
 
-
+// --- EVENT SCHEDULE COMPONENT ---
+const EventSchedule = ({ domainOpenTime, gameOpenTime, puzzleOpenTime, barGameOpenTime, isFirstReviewOpen, isSecondReviewOpen, team, currentTime }) => {
+    const now = currentTime || new Date();
+    const fmt = (iso) => iso ? new Date(iso).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }) : null;
+    const tStatus = (iso, played) => played ? 'done' : !iso ? 'pending' : new Date(iso) > now ? 'upcoming' : 'open';
+    const h = now.getHours();
+    const items = [
+        { icon: '🗂️', label: 'Domain Selection', time: fmt(domainOpenTime), status: team?.Domain ? 'done' : tStatus(domainOpenTime, false), sub: team?.Domain ? `✅ Domain selected` : domainOpenTime ? (new Date(domainOpenTime) > now ? `Opens at ${fmt(domainOpenTime)}` : '🔓 Currently Open') : 'Not opened yet' },
+        { icon: '🍽️', label: 'Lunch Break', time: '01:00 PM', status: h >= 13 && h < 14 ? 'open' : h >= 14 ? 'done' : 'upcoming', sub: h >= 13 && h < 14 ? '🍛 Lunch time now!' : h >= 14 ? 'Done' : 'Upcoming' },
+        { icon: '🧠', label: 'Memory Flip Game', time: fmt(gameOpenTime), status: tStatus(gameOpenTime, team?.memoryGamePlayed), sub: team?.memoryGamePlayed ? `✅ Score: ${team.memoryGameScore}` : gameOpenTime ? (new Date(gameOpenTime) > now ? `Opens at ${fmt(gameOpenTime)}` : '🔓 Open now!') : 'Not scheduled' },
+        { icon: '⏱️', label: 'Sequence Challenge', time: fmt(barGameOpenTime), status: tStatus(barGameOpenTime, team?.stopTheBarPlayed), sub: team?.stopTheBarPlayed ? `✅ Score: ${team.stopTheBarScore}` : barGameOpenTime ? (new Date(barGameOpenTime) > now ? `Opens at ${fmt(barGameOpenTime)}` : '🔓 Open now!') : 'Not scheduled' },
+        { icon: '🔢', label: 'Number Puzzle', time: fmt(puzzleOpenTime), status: tStatus(puzzleOpenTime, team?.numberPuzzlePlayed), sub: team?.numberPuzzlePlayed ? `✅ Score: ${team.numberPuzzleScore}` : puzzleOpenTime ? (new Date(puzzleOpenTime) > now ? `Opens at ${fmt(puzzleOpenTime)}` : '🔓 Open now!') : 'Not scheduled' },
+        { icon: '📋', label: 'Review 1', time: null, status: isFirstReviewOpen ? 'open' : 'pending', sub: isFirstReviewOpen ? '🟢 Judges are reviewing now' : '⭕ Not started yet' },
+        { icon: '🏆', label: 'Final Review', time: null, status: isSecondReviewOpen ? 'open' : 'pending', sub: isSecondReviewOpen ? '🟢 Final review in progress' : '⭕ Not started yet' },
+        { icon: '🏁', label: 'Hackathon Ends', time: '11:00 PM', status: h >= 23 ? 'done' : 'upcoming', sub: h >= 23 ? '✅ Hackathon completed! Great work!' : '⏳ Finish & submit before this!' },
+    ];
+    const dot = { done: 'bg-green-400', open: 'bg-orange-400 ring-4 ring-orange-400/20 animate-pulse', upcoming: 'bg-blue-400', pending: 'bg-gray-600' };
+    const card = { done: 'bg-green-900/20 border-green-500/30', open: 'bg-orange-900/20 border-orange-500/40', upcoming: 'bg-blue-900/20 border-blue-500/30', pending: 'bg-gray-800/40 border-gray-600/30' };
+    const txt = { done: 'text-green-300', open: 'text-orange-300', upcoming: 'text-blue-300', pending: 'text-gray-400' };
+    return (
+        <div className="bg-black/20 rounded-xl border border-gray-700/50 p-5">
+            <h2 className="text-xl font-bold font-naruto text-orange-400 border-b-2 border-orange-500/30 pb-2 mb-5">📅 TODAY'S SCHEDULE</h2>
+            <div className="relative pl-6">
+                <div className="absolute left-2.5 top-2 bottom-2 w-0.5 bg-gray-700/60 rounded-full" />
+                <div className="space-y-3">
+                    {items.map((item, i) => (
+                        <div key={i} className="relative flex items-center gap-3">
+                            <div className={`absolute -left-[15px] w-3 h-3 rounded-full flex-shrink-0 ${dot[item.status]}`} />
+                            <div className={`flex-1 flex items-center justify-between p-3 rounded-lg border ${card[item.status]} transition-all duration-300`}>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-lg">{item.icon}</span>
+                                    <div>
+                                        <p className="font-semibold text-sm text-white leading-tight">{item.label}</p>
+                                        <p className={`text-xs ${txt[item.status]}`}>{item.sub}</p>
+                                    </div>
+                                </div>
+                                {item.time && <span className="text-xs font-mono font-bold bg-black/30 px-2 py-0.5 rounded ml-2 flex-shrink-0 text-gray-300">{item.time}</span>}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+};
 
 function Teamdash() {
     // --- STATE AND LOGIC ---
@@ -436,6 +480,8 @@ function Teamdash() {
     const [barGameOpenTime, setBarGameOpenTime] = useState(null);
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
     const [logoutMessage, setLogoutMessage] = useState('');
+    const [isFirstReviewOpen, setIsFirstReviewOpen] = useState(false);
+    const [isSecondReviewOpen, setIsSecondReviewOpen] = useState(false);
     const nav = useNavigate();
 
     //const handleDomainTimerEnd = useCallback(() => {
@@ -585,7 +631,8 @@ function Teamdash() {
         // Start emitting requests for initial dashboard data
         socket.emit("domainStat");
         socket.emit("client:getDomains");
-        socket.emit("getGameStatus");
+        socket.emit("getGameStatus"); // also fetches hackathonEndTime & puzzle/bar times
+        socket.emit("judge:getReviewStatus");
 
         const timeUpdater = setInterval(() => {
             setCurrentTime(new Date());
@@ -679,12 +726,18 @@ function Teamdash() {
             setTimeout(() => {
                 handleLogout();
                 nav('/teamdash');
-                // Clear the message after navigation to prevent it from reappearing
                 setLogoutMessage('');
             }, 3000);
         };
-        socket.on('forceLogout', handleForceLogout);
+        const handleReviewStatusUpdate = (data) => {
+            if (data) {
+                setIsFirstReviewOpen(!!data.isFirstReviewOpen);
+                setIsSecondReviewOpen(!!data.isSecondReviewOpen);
+            }
+        };
 
+        socket.on('forceLogout', handleForceLogout);
+        socket.on("reviewStatusUpdate", handleReviewStatusUpdate);
 
         // Set up all in-app listeners
         socket.on("team", handleTeamUpdate);
@@ -710,6 +763,7 @@ function Teamdash() {
             socket.off("puzzleStatusUpdate", handlePuzzleStatusUpdate);
             socket.off("stopTheBarStatusUpdate", handleStopTheBarStatusUpdate);
             socket.off('forceLogout', handleForceLogout);
+            socket.off("reviewStatusUpdate", handleReviewStatusUpdate);
         };
     }, [team, domainOpenTime, gameOpenTime, puzzleOpenTime, barGameOpenTime]);
     const handleBarGameEnd = async (score) => {
@@ -1102,7 +1156,19 @@ function Teamdash() {
                                 </div>
                             </div>
 
-                            {/* 3. Side Quests */}
+                            {/* 3. Today's Schedule */}
+                            <EventSchedule
+                                domainOpenTime={domainOpenTime}
+                                gameOpenTime={gameOpenTime}
+                                puzzleOpenTime={puzzleOpenTime}
+                                barGameOpenTime={barGameOpenTime}
+                                isFirstReviewOpen={isFirstReviewOpen}
+                                isSecondReviewOpen={isSecondReviewOpen}
+                                team={team}
+                                currentTime={currentTime}
+                            />
+
+                            {/* 4. Side Quests */}
                             <div className="bg-black/20 rounded-lg border border-gray-700/50 p-5">
                                 <h2 className="text-xl font-bold font-naruto text-orange-400 border-b-2 border-orange-500/30 pb-2 mb-4">SIDE QUESTS</h2>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

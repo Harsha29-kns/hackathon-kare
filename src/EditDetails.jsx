@@ -205,7 +205,7 @@ export default function EditDetails() {
                 {/* Lock notice */}
                 <div className="flex items-center gap-2 text-xs text-[#8a7355] bg-[#120e06] border border-[#7c5c1e]/30 rounded-lg px-4 py-3 mb-6">
                     <Lock size={13} className="shrink-0 text-[#7c5c1e]" />
-                    <span>Name fields are locked and cannot be edited. Contact the organizers for name corrections.</span>
+                    <span>Team Name, Email and Registration Numbers are <strong className="text-[#e8d5a3]">locked</strong> and cannot be edited. You can update names and other details below.if you want to change team name, email or registration numbers, please contact <strong className="text-[#e8d5a3]">7671084221</strong> and <strong className="text-[#e8d5a3]">9392894244</strong>.</span>
                 </div>
 
                 <div className="space-y-6">
@@ -217,12 +217,12 @@ export default function EditDetails() {
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div>
-                                <label className={label}>Team Name</label>
-                                <input className={input} value={teamData.teamname || ""} onChange={e => setTeamData(p => ({ ...p, teamname: e.target.value }))} />
+                                <label className={label}>Team Name <span className="text-[#7c5c1e] normal-case font-normal">(locked)</span></label>
+                                <input className={inputRO} value={teamData.teamname || ""} readOnly />
                             </div>
                             <div>
-                                <label className={label}>Team Email</label>
-                                <input className={input} value={teamData.email || ""} onChange={e => setTeamData(p => ({ ...p, email: e.target.value }))} />
+                                <label className={label}>Team Email <span className="text-[#7c5c1e] normal-case font-normal">(locked)</span></label>
+                                <input className={inputRO} value={teamData.email || ""} readOnly />
                             </div>
                         </div>
                     </section>
@@ -234,12 +234,12 @@ export default function EditDetails() {
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-4">
                             <div>
-                                <label className={label}>Lead Name <span className="text-[#7c5c1e] normal-case font-normal">(locked)</span></label>
-                                <input className={inputRO} value={teamData.name || ""} readOnly />
+                                <label className={label}>Lead Name</label>
+                                <input className={input} value={teamData.name || ""} onChange={e => setTeamData(p => ({ ...p, name: e.target.value }))} />
                             </div>
                             <div>
-                                <label className={label}>Registration Number</label>
-                                <input className={input} value={teamData.registrationNumber || ""} onChange={e => setTeamData(p => ({ ...p, registrationNumber: e.target.value }))} />
+                                <label className={label}>Registration Number <span className="text-[#7c5c1e] normal-case font-normal">(locked)</span></label>
+                                <input className={inputRO} value={teamData.registrationNumber || ""} readOnly />
                             </div>
                             <div>
                                 <label className={label}>Phone Number</label>
@@ -271,12 +271,12 @@ export default function EditDetails() {
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
                                         <div>
-                                            <label className={label}>Name <span className="text-[#7c5c1e] normal-case font-normal">(locked)</span></label>
-                                            <input className={smRO} value={member.name || ""} readOnly />
+                                            <label className={label}>Name</label>
+                                            <input className={smInput} value={member.name || ""} onChange={e => updateMember(idx, "name", e.target.value)} />
                                         </div>
                                         <div>
-                                            <label className={label}>Registration Number</label>
-                                            <input className={smInput} value={member.registrationNumber || ""} onChange={e => updateMember(idx, "registrationNumber", e.target.value)} />
+                                            <label className={label}>Registration Number <span className="text-[#7c5c1e] normal-case font-normal">(locked)</span></label>
+                                            <input className={smRO} value={member.registrationNumber || ""} readOnly />
                                         </div>
                                     </div>
                                     <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
