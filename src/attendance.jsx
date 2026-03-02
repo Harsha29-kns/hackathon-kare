@@ -222,7 +222,7 @@ function Attd() {
     const [error, setError] = useState("");
     const [selectedTeam, setSelectedTeam] = useState(null);
     const [selectedSector, setSelectedSector] = useState(null);
-    const sectors = ["Naruto", "Sasuke", "Itachi"];
+    const sectors = ["Sea", "Island", "Jungle"];
     const location = useLocation();
     const params = new URLSearchParams(location.search);
     const round = params.get("round") || "1";
