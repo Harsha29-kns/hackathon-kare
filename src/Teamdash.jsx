@@ -12,11 +12,11 @@ import { Compass } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 // Import your images
-import scorecraft from "/public/scorecraft.jpg";
-import king from "/public/king.png";
-import hacksail from "/public/HackSail.png";
-import hacksailr from "/public/HackSailr.png";
-import missionBg from "/public/mission.jpg";
+const scorecraft = "/scorecraft.jpg";
+const king = "/king.png";
+const hacksail = "/HackSail.png";
+const hacksailr = "/HackSailr.png";
+const missionBg = "/mission.jpg";
 
 // --- MODAL STYLES ---
 const customModalStyles = {
