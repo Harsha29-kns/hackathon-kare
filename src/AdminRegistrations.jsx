@@ -51,11 +51,11 @@ function AdminRegistrations() {
 
   // Action: Generate QR codes + password for a verified team
   const handleGenerateQRPass = async (teamId) => {
-    if (!window.confirm("Generate QR codes and a login password for this team? This will email them their credentials.")) return;
+    if (!window.confirm("Generate QR codes and a login password for this team?")) return;
     setGeneratingQRId(teamId);
     try {
       await axios.post(`${api}/Hack/generate-qr-pass/${teamId}`);
-      alert("✅ QR codes and password generated! Credentials emailed to the team.");
+      alert("✅ QR codes and password generated!");
       fetchTeams();
     } catch (error) {
       alert("Generation Failed: " + (error.response?.data?.error || error.message));
@@ -96,6 +96,49 @@ function AdminRegistrations() {
 
     setBulkSending(false);
     alert(`Bulk Send Complete!\n\n✅ Sent: ${successCount}\n❌ Failed: ${failCount}`);
+  };
+
+  // Action: Bulk Generate QR & Pass
+  const handleGenerateAllQRPass = async () => {
+    const ungeneratedTeams = verifiedTeams.filter(t => !t.password);
+    if (ungeneratedTeams.length === 0) {
+      alert("All verified teams already have QR & Passes generated.");
+      return;
+    }
+    if (!window.confirm(`Are you sure you want to generate QR & Passes for ${ungeneratedTeams.length} teams?`)) return;
+
+    setBulkSending(true);
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const team of ungeneratedTeams) {
+      try {
+        await axios.post(`${api}/Hack/generate-qr-pass/${team._id}`);
+        successCount++;
+      } catch (error) {
+        console.error(`Failed for ${team.teamname}`, error);
+        failCount++;
+      }
+    }
+
+    setBulkSending(false);
+    alert(`Bulk Generate Complete!\n\n✅ Generated: ${successCount}\n❌ Failed: ${failCount}`);
+    fetchTeams();
+  };
+
+  // Action: Bulk Send Credentials Email
+  const handleSendAllCredentials = async () => {
+    if (!window.confirm("Are you sure you want to send credentials emails to ALL verified teams? (This will use the backend bulk sender)")) return;
+
+    setBulkSending(true);
+    try {
+      const res = await axios.post(`${api}/Hack/admin/send-all-credentials`);
+      alert(`Bulk Email Sending Complete!\n\n✅ Sent: ${res.data.successCount}\n❌ Failed: ${res.data.failureCount}`);
+    } catch (error) {
+      alert("Bulk Send Failed: " + (error.response?.data?.message || error.message));
+    } finally {
+      setBulkSending(false);
+    }
   };
 
   // Action: Edit Team
@@ -153,6 +196,28 @@ function AdminRegistrations() {
             {bulkSending ? <Loader2 className="animate-spin" /> : <Mail size={20} />}
             {bulkSending ? "Sending Mails..." : `Send Link to All (${registeredTeams.length})`}
           </button>
+        )}
+
+        {/* Bulk Buttons for Verified Tab */}
+        {activeTab === "verified" && verifiedTeams.length > 0 && (
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              onClick={handleGenerateAllQRPass}
+              disabled={bulkSending}
+              className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-bold flex items-center justify-center gap-2 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+            >
+              {bulkSending ? <Loader2 className="animate-spin" size={16} /> : "⊕"}
+              {bulkSending ? "Processing..." : "Generate All Passes"}
+            </button>
+            <button
+              onClick={handleSendAllCredentials}
+              disabled={bulkSending}
+              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-bold flex items-center justify-center gap-2 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+            >
+              {bulkSending ? <Loader2 className="animate-spin" size={16} /> : <Mail size={16} />}
+              {bulkSending ? "Sending..." : "Send All Mails"}
+            </button>
+          </div>
         )}
       </div>
 
@@ -249,7 +314,7 @@ function AdminRegistrations() {
                     />
                   </div>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
                   <div>
                     <label className="block text-gray-500 text-xs mb-1">Room</label>
                     <input className="w-full bg-gray-950 border border-gray-700 rounded p-2 text-white text-sm" value={editingTeam.room || ''} onChange={(e) => handleEditChange(e, 'room')} />
@@ -269,6 +334,10 @@ function AdminRegistrations() {
                   <div>
                     <label className="block text-gray-500 text-xs mb-1">Section</label>
                     <input className="w-full bg-gray-950 border border-gray-700 rounded p-2 text-white text-sm" value={editingTeam.section || ''} onChange={(e) => handleEditChange(e, 'section')} />
+                  </div>
+                  <div>
+                    <label className="block text-gray-500 text-xs mb-1">Sector</label>
+                    <input className="w-full bg-gray-950 border border-gray-700 rounded p-2 text-white text-sm" value={editingTeam.Sector || ''} placeholder="Ex: Alpha" onChange={(e) => handleEditChange(e, 'Sector')} />
                   </div>
                 </div>
               </div>
@@ -374,6 +443,10 @@ const TeamCard = ({ team, type, onAction, loadingId, onEdit, onGenerateQR, gener
       <div className="flex justify-between">
         <span className="text-gray-400">Dept/Year:</span>
         <span className="text-gray-300">{team.department} - {team.year}</span>
+      </div>
+      <div className="flex justify-between">
+        <span className="text-gray-400">Sector:</span>
+        <span className="text-orange-400 font-bold">{team.Sector || "N/A"}</span>
       </div>
       {/* Transaction Details (If applicable) */}
       {type !== "registered" && (
