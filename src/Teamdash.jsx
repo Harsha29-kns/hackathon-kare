@@ -919,6 +919,7 @@ function Teamdash() {
     const [DomainOpen, setDomainOpen] = useState(false);
     const [domainOpenTime, setDomainOpenTime] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [isDomainStatLoading, setIsDomainStatLoading] = useState(true);
     const [error, setError] = useState("");
     const [selectedDomain, setSelectedDomain] = useState();
     const [DomainData, setDomainData] = useState([]);
@@ -1101,6 +1102,7 @@ function Teamdash() {
                 setDomainOpen(false);
                 setDomainOpenTime(null);
             }
+            setIsDomainStatLoading(false);
         };
 
         // Start emitting requests for initial dashboard data
@@ -1165,6 +1167,7 @@ function Teamdash() {
                 addToast(`✅ Problem statement "${data.domain.name}" selected!`, 'success');
                 setIsDomainModalOpen(false);
                 setSelectedSet(null);
+                setTeam(prev => prev ? { ...prev, Domain: data.domain.name } : null);
                 refreshTeamData();
             }
         };
@@ -1374,19 +1377,35 @@ function Teamdash() {
                     <div className="bg-white/10 border border-white/20 rounded-2xl p-8 backdrop-blur-xl shadow-2xl shadow-black/40">
                         <div className="text-center mb-8">
                             <h1
-                                className="text-5xl font-bold tracking-widest text-transparent bg-clip-text bg-gradient-to-b from-purple-300 via-purple-500 to-amber-700"
-                                style={{ fontFamily: '"Pirata One", serif', textShadow: '0 0 30px rgba(251,146,60,0.5), 0 4px 8px rgba(0,0,0,0.8)', letterSpacing: '0.12em' }}
+                                className="text-6xl font-bold tracking-widest text-transparent bg-clip-text"
+                                style={{
+                                    fontFamily: '"Pirata One", serif',
+                                    letterSpacing: "0.12em",
+                                    backgroundImage: "linear-gradient(180deg,#fff3a0,#ffd700,#b8860b)",
+                                    WebkitBackgroundClip: "text",
+                                    textShadow: `
+                                0 2px 0 #b8860b,
+                                0 4px 10px rgba(0,0,0,0.9),
+                                0 0 25px rgba(255,215,0,0.9)
+                                `
+                                }}
                             >
                                 HACKSAIL 2K26
                             </h1>
-                            <p className="text-purple-400/70 text-xs tracking-[0.3em] uppercase mt-1 font-medium">⚓ Set Sail &amp; Conquer ⚓</p>
+                            <p className="text-amber-300 text-xs tracking-[0.3em] uppercase mt-1 font-medium">
+                                ⚓ Set Sail & Conquer ⚓
+                            </p>
                             <div className="mt-1 h-px bg-gradient-to-r from-transparent via-purple-500/50 to-transparent" />
                             <h2 className="text-2xl font-bold font-['Pirata_One'] tracking-wider text-purple-400 mt-4">Team Login</h2>
                             <p className="text-gray-400 mt-1">Welcome to the Arena</p>
-                            <div className="mt-6 bg-purple-500/10 border border-purple-400/30 text-purple-300 text-sm rounded-lg p-3">
-                                <p className="font-semibold">Note:</p>
-                                <p className="mt-1">Login access is restricted to <span className="font-medium">Team Leads only</span>.</p>
-                                <p>Each account can log in for <span className="font-medium">one device only</span>.</p>
+                            <div className="mt-6 bg-black/40 border border-gray-700 text-gray-300 text-sm rounded-lg p-3">
+                                <p className="font-semibold text-white">Note:</p>
+                                <p className="mt-1">
+                                    Login access is restricted to <span className="font-medium text-white">Team Leads only</span>.
+                                </p>
+                                <p>
+                                    Each account can log in for <span className="font-medium text-white">one device only</span>.
+                                </p>
                             </div>
                         </div>
 
@@ -1404,7 +1423,7 @@ function Teamdash() {
                                     className="block w-full px-3 py-4 text-white bg-white/5 rounded-lg border-2 border-transparent focus:border-purple-500 focus:outline-none peer transition"
                                     placeholder=" "
                                 />
-                                <label htmlFor="teamName" className="absolute text-sm text-gray-400 duration-300 transform -translate-y-4 scale-75 top-4 z-10 origin-[0] left-3 peer-focus:text-purple-400 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-4">
+                                <label htmlFor="teamName" className="absolute left-3 -top-2 text-xs text-gray-400 bg-black px-1 transition-all duration-200 peer-focus:text-red-400">
                                     Team Name
                                 </label>
                             </div>
@@ -1417,7 +1436,7 @@ function Teamdash() {
                                     className="block w-full px-3 py-4 text-white bg-white/5 rounded-lg border-2 border-transparent focus:border-purple-500 focus:outline-none peer transition"
                                     placeholder=" "
                                 />
-                                <label htmlFor="pass" className="absolute text-sm text-gray-400 duration-300 transform -translate-y-4 scale-75 top-4 z-10 origin-[0] left-3 peer-focus:text-purple-400 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-4">
+                                <label htmlFor="pass" className="absolute left-3 -top-2 text-xs text-gray-400 bg-black px-1 transition-all duration-200 peer-focus:text-red-400">
                                     Team Access Code
                                 </label>
                             </div>
@@ -1747,6 +1766,11 @@ function Teamdash() {
                                                         <p className="text-center text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-300 drop-shadow">{team.Domain}</p>
                                                         <p className="text-green-500/70 font-mono tracking-widest mt-4 uppercase text-sm border border-green-500/30 px-4 py-1 rounded-full bg-green-500/10">Locked In Contract</p>
                                                     </div>
+                                                ) : isDomainStatLoading ? (
+                                                    <div className="flex flex-col items-center justify-center py-10 fade-in h-48">
+                                                        <div className="w-12 h-12 border-t-4 border-r-4 border-transparent border-t-purple-500 border-r-purple-500 rounded-full animate-spin mb-4 drop-shadow-[0_0_10px_rgba(168,85,247,0.5)]"></div>
+                                                        <p className="text-purple-400/80 font-mono tracking-widest text-sm animate-pulse shadow-purple-500/20 drop-shadow-md">DECRYPTING REAL STATUS...</p>
+                                                    </div>
                                                 ) : (
                                                     DomainOpen ? (
                                                         [...new Set(DomainData.map(item => item.set))].length > 0 ? (
@@ -1777,7 +1801,7 @@ function Teamdash() {
                                                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                                                                 </div>
                                                                 <div>
-                                                                    <p className="font-bold text-2xl text-red-400 font-['Pirata_One'] tracking-wide">Parchment Sealed</p>
+                                                                    <p className="font-bold text-2xl text-red-400 font-['Pirata_One'] tracking-wide"> LOcked!!!</p>
                                                                     <p className="text-gray-500 mt-2 text-sm">Problem statements are not yet available.</p>
                                                                 </div>
                                                             </div>

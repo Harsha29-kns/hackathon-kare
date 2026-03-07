@@ -523,10 +523,7 @@ function Admin() {
                 <div className="relative z-10 w-full max-w-md">
                     {/* Logo area */}
                     <div className="text-center mb-8">
-                        <div className="inline-flex items-center justify-center w-20 h-20 rounded-full mb-4"
-                            style={{ background: 'linear-gradient(135deg, rgba(200,150,12,0.2), rgba(200,150,12,0.05))', border: '2px solid rgba(200,150,12,0.4)', backdropFilter: 'blur(10px)' }}>
-                            
-                        </div>
+                        
                         <h1 className="text-5xl font-pirata text-amber-400 drop-shadow-lg tracking-wide">HackSail</h1>
                         <p className="text-amber-600/80 mt-1 text-sm tracking-[0.3em] uppercase">Command Deck</p>
                     </div>
