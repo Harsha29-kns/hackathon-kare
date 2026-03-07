@@ -3,49 +3,227 @@ import { useEffect, useState, useMemo } from "react";
 import api from "./api.js";
 import socket from "./socket";
 
-// --- NEW RUBRICS ---
+// --- RUBRICS ---
 const firstReviewRubric = {
-    Core: { criteria: "Core Functionality", marks: "", max: 20 },
-    UIUX: { criteria: "UI/UX Design", marks: "", max: 10 },
-    Technical: { criteria: "Technical Depth", marks: "", max: 10 },
-    Progress: { criteria: "Progress & Team Effort", marks: "", max: 10 },
+    Core: { criteria: "Problem Understanding & Solution Clarity", marks: "", max: 10 },
+    UIUX: { criteria: "Innovation & Approach", marks: "", max: 10 },
+    Technical: { criteria: "Working Prototype & Core Functionality", marks: "", max: 15 },
+    Progress: { criteria: "Technical Feasibility & System Architecture", marks: "", max: 10 },
+    team: { criteria: "Team Collaboration & Development Progress", marks: "", max: 5 },
 };
 
 const secondReviewRubric = {
-    functionality: { criteria: "End-to-End Functionality", marks: "", max: 15 },
-    preformance: { criteria: "Scalability & Performance", marks: "", max: 10 },
-    UseCase: { criteria: "Real-World Impact & Use Case", marks: "", max: 10 },
-    Demo: { criteria: "Demo Quality & Communication", marks: "", max: 10 },
-    extension: { criteria: "Innovation & Extension", marks: "", max: 5 },
+    functionality: { criteria: "End-to-End System Functionality", marks: "", max: 15 },
+    preformance: { criteria: "Technical Implementation & Code Quality", marks: "", max: 10 },
+    UseCase: { criteria: "UI/UX Design & User Experience", marks: "", max: 10 },
+    Demo: { criteria: "Real-World Impact, Innovation & Scalability", marks: "", max: 10 },
+    extension: { criteria: "Jury Presentation, Demo Quality & Communication", marks: "", max: 5 },
 };
 
-// --- SVG Icons ---
-const IconLogout = () => (<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>);
-const IconSearch = () => (<svg className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>);
-const IconCheckCircle = () => (<svg className="h-5 w-5 text-green-400 drop-shadow-[0_0_5px_rgba(74,222,128,0.8)]" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>);
-const IconTarget = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-orange-500"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>);
-const IconCrown = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>);
+// Map display passwords → backend judge IDs
+const PASSWORD_TO_JUDGE_ID = {
+    "Harsha@35": "judge1",
+    "Bhuvan@43": "judge2",
+};
+const VALID_PASSWORDS = Object.keys(PASSWORD_TO_JUDGE_ID);
 
-// Inline Styles for Animations
+// --- SVG Icons ---
+const IconSkull = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="40" height="40" fill="currentColor">
+        <path d="M50 5C28 5 14 20 14 38c0 12 6 22 15 28v10h10v8h22v-8h10V66c9-6 15-16 15-28C86 20 72 5 50 5zm-14 38a8 8 0 1 1 16 0 8 8 0 0 1-16 0zm28 0a8 8 0 1 1 16 0 8 8 0 0 1-16 0z"/>
+    </svg>
+);
+const IconAnchor = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="5" r="3"/><line x1="12" y1="22" x2="12" y2="8"/><path d="M5 12H2a10 10 0 0 0 20 0h-3"/>
+    </svg>
+);
+const IconCompass = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
+    </svg>
+);
+const IconScroll = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+    </svg>
+);
+const IconSeal = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+    </svg>
+);
+const IconLock = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+    </svg>
+);
+const IconKey = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0 3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+    </svg>
+);
+const IconLogout = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+    </svg>
+);
+const IconWave = () => (
+    <svg viewBox="0 0 1440 80" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" className="w-full h-auto">
+        <path d="M0,40 C180,80 360,0 540,40 C720,80 900,0 1080,40 C1260,80 1440,20 1440,40 L1440,80 L0,80 Z" fill="rgba(212,175,55,0.07)"/>
+    </svg>
+);
+
+// ── Inline Styles ──────────────────────────────────────────────────────────────
 const inlineStyles = `
-  @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
-  @keyframes fade-in-up { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-  @keyframes slow-pulse { 0%, 100% { opacity: 0.2; } 50% { opacity: 0.5; } }
-  @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
-  @keyframes border-shimmer { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-  .animate-fade-in { animation: fade-in 0.6s ease-out forwards; }
-  .animate-fade-in-up { animation: fade-in-up 0.8s ease-out forwards; }
-  .animate-slow-pulse { animation: slow-pulse 4s ease-in-out infinite; }
-  .animate-float { animation: float 6s ease-in-out infinite; }
-  
-  .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-  .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 8px; }
-  .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(234,88,12,0.3); border-radius: 8px; }
-  .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(234,88,12,0.6); }
+  @import url('https://fonts.googleapis.com/css2?family=Pirata+One&family=IM+Fell+English:ital@0;1&display=swap');
+
+  :root {
+    --gold: #d4af37;
+    --gold-light: #f0d060;
+    --gold-dark: #a07820;
+    --navy: #0a0e1a;
+    --navy-mid: #101628;
+    --navy-light: #1a2340;
+    --parchment: #c8a96e;
+    --rust: #8b2500;
+    --wood: #3d1e0a;
+  }
+
+  @keyframes fadeUp { from { opacity:0; transform:translateY(24px);} to { opacity:1; transform:translateY(0);} }
+  @keyframes fadeIn { from { opacity:0;} to { opacity:1;} }
+  @keyframes waveDrift { 0%,100%{transform:translateX(0)} 50%{transform:translateX(-30px)} }
+  @keyframes lanternSway { 0%,100%{transform:rotate(-4deg);} 50%{transform:rotate(4deg);} }
+  @keyframes shimmer { 0%{background-position:-200% center} 100%{background-position:200% center} }
+  @keyframes slowPulse { 0%,100%{opacity:0.15} 50%{opacity:0.4} }
+  @keyframes float {0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+  @keyframes spinSlow { from{transform:rotate(0)} to{transform:rotate(360deg)} }
+
+  .font-pirata { font-family: 'Pirata One', cursive; }
+  .font-parchment { font-family: 'IM Fell English', serif; }
+
+  .animate-fade-up { animation: fadeUp 0.7s ease-out forwards; }
+  .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+  .animate-wave { animation: waveDrift 8s ease-in-out infinite; }
+  .animate-sway { animation: lanternSway 3s ease-in-out infinite; }
+  .animate-slow-pulse { animation: slowPulse 4s ease-in-out infinite; }
+  .animate-float { animation: float 5s ease-in-out infinite; }
+  .animate-spin-slow { animation: spinSlow 20s linear infinite; }
+
+  .gold-shimmer {
+    background: linear-gradient(90deg, var(--gold-dark), var(--gold-light), var(--gold-dark));
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 3s linear infinite;
+  }
+
+  .rope-border {
+    border: 2px solid transparent;
+    background: linear-gradient(var(--navy-mid), var(--navy-mid)) padding-box,
+                repeating-linear-gradient(45deg, var(--gold-dark) 0px, var(--gold-dark) 4px, transparent 4px, transparent 8px) border-box;
+  }
+
+  .glass-card {
+    background: rgba(10,14,26,0.75);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+
+  .parchment-card {
+    background: rgba(25,18,8,0.85);
+    backdrop-filter: blur(12px);
+  }
+
+  .skull-bg::before {
+    content: '☠';
+    position: absolute;
+    font-size: 220px;
+    opacity: 0.025;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    pointer-events: none;
+    color: var(--gold);
+  }
+
+  .team-btn {
+    transition: all 0.25s ease;
+    border-left: 3px solid transparent;
+  }
+  .team-btn:hover {
+    border-left-color: var(--gold-dark);
+    background: rgba(212,175,55,0.07);
+  }
+  .team-btn.active {
+    border-left-color: var(--gold);
+    background: rgba(212,175,55,0.12);
+    box-shadow: inset 0 0 30px rgba(212,175,55,0.05);
+  }
+
+  .score-row {
+    background: rgba(16,22,40,0.8);
+    border: 1px solid rgba(212,175,55,0.12);
+    transition: all 0.2s;
+  }
+  .score-row:hover {
+    border-color: rgba(212,175,55,0.35);
+    background: rgba(212,175,55,0.05);
+  }
+
+  .score-input {
+    background: rgba(0,0,0,0.5);
+    border: 1px solid rgba(212,175,55,0.25);
+    color: var(--gold-light);
+    text-align: center;
+    font-family: 'Pirata One', cursive;
+    font-size: 1.3rem;
+    transition: all 0.2s;
+    outline: none;
+  }
+  .score-input:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 12px rgba(212,175,55,0.3);
+  }
+
+  .submit-btn {
+    background: linear-gradient(135deg, #8b6914, #d4af37, #8b6914);
+    background-size: 200% auto;
+    transition: all 0.3s;
+    color: #0a0e1a;
+    font-family: 'Pirata One', cursive;
+    letter-spacing: 0.1em;
+    border: 1px solid var(--gold);
+    box-shadow: 0 0 20px rgba(212,175,55,0.25), inset 0 1px 0 rgba(255,255,255,0.15);
+  }
+  .submit-btn:hover:not(:disabled) {
+    background-position: right center;
+    box-shadow: 0 0 35px rgba(212,175,55,0.5), inset 0 1px 0 rgba(255,255,255,0.2);
+    transform: translateY(-2px);
+  }
+  .submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+  .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.3); border-radius: 4px; }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(212,175,55,0.6); }
+
+  .stars {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background-image:
+      radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 30% 70%, rgba(255,255,255,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 55% 25%, rgba(255,255,255,0.5) 0%, transparent 100%),
+      radial-gradient(1px 1px at 75% 80%, rgba(255,255,255,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 90% 45%, rgba(255,255,255,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 20% 90%, rgba(255,255,255,0.2) 0%, transparent 100%),
+      radial-gradient(1px 1px at 65% 55%, rgba(255,255,255,0.35) 0%, transparent 100%);
+  }
 `;
 
+// ── Component ──────────────────────────────────────────────────────────────────
 function Review() {
-    // --- STATE MANAGEMENT ---
     const [teams, setTeams] = useState([]);
     const [loading, setLoading] = useState(true);
     const [currentTeamIndex, setCurrentTeamIndex] = useState(null);
@@ -53,7 +231,8 @@ function Review() {
     const [submitStatus, setSubmitStatus] = useState(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [password, setPassword] = useState("");
-    const [judge, setJudge] = useState(null);
+    const [judge, setJudge] = useState(null); // "judge1" or "judge2" (backend ID)
+    const [judgeDisplay, setJudgeDisplay] = useState(""); // display name
     const [error, setError] = useState("");
     const [searchQuery, setSearchQuery] = useState("");
     const [reviewRound, setReviewRound] = useState(1);
@@ -64,99 +243,99 @@ function Review() {
 
     const isReviewOpen = reviewRound === 1 ? isFirstReviewOpen : isSecondReviewOpen;
 
+    // Socket – review status
     useEffect(() => {
         socket.on('reviewStatusUpdate', (status) => {
             setIsFirstReviewOpen(status.isFirstReviewOpen);
             setIsSecondReviewOpen(status.isSecondReviewOpen);
         });
-
-        socket.emit('judge:getReviewStatus'); // Get initial status
-
-        return () => {
-            socket.off('reviewStatusUpdate');
-        };
+        socket.emit('judge:getReviewStatus');
+        return () => { socket.off('reviewStatusUpdate'); };
     }, []);
 
+    // Session restore
     useEffect(() => {
-        const currentRubric = reviewRound === 1 ? firstReviewRubric : secondReviewRubric;
-        setScores(currentRubric);
+        const stored = sessionStorage.getItem("judgePassword");
+        const judgeId = PASSWORD_TO_JUDGE_ID[stored];
+        if (judgeId) {
+            setIsAuthenticated(true);
+            setJudge(judgeId);
+            setJudgeDisplay(stored);
+        } else {
+            setLoading(false);
+        }
+    }, []);
+
+    // Rubric reset on round change
+    useEffect(() => {
+        setScores(reviewRound === 1 ? firstReviewRubric : secondReviewRubric);
     }, [reviewRound]);
 
+    // Fetch teams whenever judge is set
     useEffect(() => {
-        const storedPassword = sessionStorage.getItem("judgePassword");
-        if (storedPassword === "judge1" || storedPassword === "judge2") {
-            setIsAuthenticated(true);
-            setJudge(storedPassword);
-        }
+        if (!isAuthenticated || !judge) return;
         async function fetchData() {
-            if (!judge) return;
-
             try {
                 const res = await axios.get(`${api}/Hack/review/teams/${judge}`);
-                const sortedTeams = res.data.sort((a, b) => a.teamname.localeCompare(b.teamname));
-                setTeams(sortedTeams);
-            } catch (error) {
-                console.error("Error fetching teams:", error);
-                setError("Failed to load records. Connection unstable.");
+                const sorted = res.data.sort((a, b) => a.teamname.localeCompare(b.teamname));
+                setTeams(sorted);
+            } catch (err) {
+                console.error("Error fetching teams:", err);
+                setError("Failed to load the crew manifest. Sea connection unstable.");
             } finally {
                 setLoading(false);
             }
         }
-        if (isAuthenticated) {
-            fetchData();
-        } else {
-            setLoading(false);
-        }
+        fetchData();
     }, [isAuthenticated, judge]);
 
     const filteredTeams = useMemo(() => {
         if (!teams) return [];
-        const numberedTeams = teams.map((team, index) => ({ ...team, teamNumber: index + 1 }));
-        if (!searchQuery) return numberedTeams;
-        return numberedTeams.filter(team =>
-            team.teamname.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            String(team.teamNumber) === searchQuery
+        const numbered = teams.map((t, i) => ({ ...t, teamNumber: i + 1 }));
+        if (!searchQuery) return numbered;
+        return numbered.filter(t =>
+            t.teamname.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            String(t.teamNumber) === searchQuery
         );
     }, [teams, searchQuery]);
 
-    const maxMarks = useMemo(() => {
-        return Object.values(scores).reduce((total, item) => total + item.max, 0);
-    }, [scores]);
+    const maxMarks = useMemo(() =>
+        Object.values(scores).reduce((s, i) => s + i.max, 0)
+    , [scores]);
 
-    // --- HANDLER FUNCTIONS ---
-    const resetScoreMarks = () => {
-        const currentRubric = reviewRound === 1 ? firstReviewRubric : secondReviewRubric;
-        setScores(currentRubric);
-    };
+    const resetScoreMarks = () => setScores(reviewRound === 1 ? firstReviewRubric : secondReviewRubric);
 
     const handleLogin = (e) => {
         e.preventDefault();
-        if (password === "judge1" || password === "judge2") {
+        const judgeId = PASSWORD_TO_JUDGE_ID[password];
+        if (judgeId) {
             setIsAuthenticated(true);
-            setJudge(password);
+            setJudge(judgeId);
+            setJudgeDisplay(password);
             sessionStorage.setItem("judgePassword", password);
             setError("");
         } else {
-            setError("Authentication failed. Invalid passkey.");
+            setError("Invalid passkey. The Black Pearl denies entry.");
         }
     };
 
     const handleLogout = () => {
         setIsAuthenticated(false);
         setJudge(null);
+        setJudgeDisplay("");
         setPassword("");
+        setTeams([]);
         sessionStorage.removeItem("judgePassword");
     };
 
     const handleScoreChange = (key, value) => {
         const max = scores[key].max;
-        const numValue = value === "" ? "" : Math.min(max, Math.max(0, parseInt(value, 10) || 0));
-        setScores(prev => ({ ...prev, [key]: { ...prev[key], marks: numValue } }));
+        const num = value === "" ? "" : Math.min(max, Math.max(0, parseInt(value, 10) || 0));
+        setScores(prev => ({ ...prev, [key]: { ...prev[key], marks: num } }));
     };
 
-    const calculateTotalMarks = () => {
-        return Object.values(scores).reduce((total, item) => total + (Number(item.marks) || 0), 0);
-    };
+    const calculateTotal = () =>
+        Object.values(scores).reduce((s, i) => s + (Number(i.marks) || 0), 0);
 
     const handleTeamSelect = (index) => {
         setCurrentTeamIndex(index);
@@ -167,309 +346,415 @@ function Review() {
     const handleSubmitScores = async () => {
         const currentTeam = filteredTeams[currentTeamIndex];
         if (!currentTeam?._id) {
-            setSubmitStatus({ type: 'error', message: 'Target team invalid.' });
+            setSubmitStatus({ type: 'error', message: 'No crew selected.' });
             return;
         }
-
         setSubmitting(true);
         setSubmitStatus(null);
         const payload = {
-            score: calculateTotalMarks(),
+            score: calculateTotal(),
             ...(reviewRound === 1 && { FirstReview: scores }),
-            ...(reviewRound === 2 && { SecoundReview: scores })
+            ...(reviewRound === 2 && { SecoundReview: scores }),
         };
-
         try {
             const endpoint = reviewRound === 1 ? 'score1' : 'score';
             await axios.post(`${api}/Hack/team/${endpoint}/${currentTeam._id}`, payload);
-
-            const updatedTeams = [...teams];
-            const teamIndexInAllTeams = teams.findIndex(t => t._id === currentTeam._id);
-            if (teamIndexInAllTeams !== -1) {
+            const updated = [...teams];
+            const idx = teams.findIndex(t => t._id === currentTeam._id);
+            if (idx !== -1) {
                 if (reviewRound === 1) {
-                    updatedTeams[teamIndexInAllTeams].FirstReviewScore = calculateTotalMarks();
-                    updatedTeams[teamIndexInAllTeams].FirstReview = true;
-                } else if (reviewRound === 2) {
-                    updatedTeams[teamIndexInAllTeams].SecoundReviewScore = calculateTotalMarks();
-                    updatedTeams[teamIndexInAllTeams].SecoundReview = true;
+                    updated[idx].FirstReviewScore = calculateTotal();
+                    updated[idx].FirstReview = true;
+                } else {
+                    updated[idx].SecoundReviewScore = calculateTotal();
+                    updated[idx].SecoundReview = true;
                 }
-                setTeams(updatedTeams);
+                setTeams(updated);
             }
-            setSubmitStatus({ type: 'success', message: 'Evaluation committed to the ledger!' });
-        } catch (error) {
-            console.error("Submission Error:", error);
-            const errorMessage = error.response?.data?.message || 'Transaction failed. Please try again.';
-            setSubmitStatus({ type: 'error', message: errorMessage });
+            setSubmitStatus({ type: 'success', message: 'Entry sealed in the ship\'s log!' });
+        } catch (err) {
+            setSubmitStatus({ type: 'error', message: err.response?.data?.message || 'Transaction failed. Try again.' });
         } finally {
             setSubmitting(false);
         }
     };
 
+    const judgeLabel = judge === 'judge1' ? 'First Mate' : 'Quartermaster';
+
+    // ── LOGIN SCREEN ───────────────────────────────────────────────────────────
     if (!isAuthenticated) {
         return (
-            <div className="min-h-screen bg-gray-950 flex flex-col items-center justify-center p-4 relative overflow-hidden" style={{ backgroundImage: "url('/background.jpeg')", backgroundSize: 'cover', backgroundPosition: 'center' }}>
+            <div className="min-h-screen flex items-center justify-center relative overflow-hidden"
+                style={{ background: 'linear-gradient(160deg, #050810 0%, #0a0e1a 50%, #0d1520 100%)' }}>
                 <style dangerouslySetInnerHTML={{ __html: inlineStyles }} />
+                <div className="stars" />
 
-                {/* Background Overlays */}
-                <div className="absolute inset-0 bg-black/70 backdrop-blur-sm z-0"></div>
-                <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-orange-600/20 rounded-full blur-[120px] mix-blend-screen z-0 animate-slow-pulse"></div>
-                <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-red-600/20 rounded-full blur-[120px] mix-blend-screen z-0"></div>
+                {/* Ocean glow */}
+                <div className="absolute bottom-0 left-0 w-full h-64 pointer-events-none" style={{ background: 'linear-gradient(to top, rgba(10,40,80,0.4), transparent)' }} />
+                <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full pointer-events-none animate-slow-pulse"
+                    style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.06) 0%, transparent 70%)' }} />
 
-                <div className="relative z-10 w-full max-w-md animate-fade-in-up">
-                    <div className="bg-black/50 backdrop-blur-3xl border border-white/10 rounded-[2rem] shadow-[0_0_50px_rgba(0,0,0,0.8)] p-8 md:p-10 relative overflow-hidden group hover:border-orange-500/30 transition-colors duration-500">
+                <div className="relative z-10 w-full max-w-md px-4 animate-fade-up">
+                    {/* Card */}
+                    <div className="relative rounded-2xl overflow-hidden"
+                        style={{ background: 'linear-gradient(160deg, rgba(20,14,5,0.95) 0%, rgba(10,8,20,0.98) 100%)', border: '1px solid rgba(212,175,55,0.2)', boxShadow: '0 0 60px rgba(0,0,0,0.8), 0 0 30px rgba(212,175,55,0.05)' }}>
 
-                        <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-orange-500 to-transparent opacity-50"></div>
+                        {/* Gold top line */}
+                        <div className="h-[2px] w-full" style={{ background: 'linear-gradient(90deg, transparent, #d4af37, transparent)' }} />
 
-                        <div className="text-center mb-8 space-y-2">
-                            <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl mx-auto flex items-center justify-center shadow-[0_0_20px_rgba(234,88,12,0.4)] mb-6">
-                                <IconCrown />
+                        <div className="p-8 md:p-10">
+                            {/* Header */}
+                            <div className="text-center mb-8">
+                                <div className="flex justify-center mb-4">
+                                    <div className="w-20 h-20 rounded-full flex items-center justify-center relative"
+                                        style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.15) 0%, rgba(0,0,0,0.5) 100%)', border: '1px solid rgba(212,175,55,0.3)' }}>
+                                        <span className="text-4xl animate-sway inline-block">☠️</span>
+                                    </div>
+                                </div>
+                                <h1 className="font-pirata text-4xl mb-1" style={{ color: '#d4af37', textShadow: '0 0 20px rgba(212,175,55,0.4)' }}>
+                                    Captain's Log
+                                </h1>
+                                <p className="font-parchment text-sm italic" style={{ color: 'rgba(200,169,110,0.7)' }}>
+                                    Speak the secret and enter, or be cast overboard
+                                </p>
                             </div>
-                            <h1 className="text-4xl font-bold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-500 font-naruto">EVALUATION DECK</h1>
-                            <p className="text-gray-400 text-sm tracking-wide">Enter judge credentials to access</p>
-                        </div>
 
-                        <form onSubmit={handleLogin} className="space-y-6 relative">
-                            <div className="space-y-4">
+                            {/* Divider */}
+                            <div className="flex items-center gap-3 mb-6">
+                                <div className="flex-1 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(212,175,55,0.3))' }} />
+                                <IconAnchor />
+                                <div className="flex-1 h-px" style={{ background: 'linear-gradient(90deg, rgba(212,175,55,0.3), transparent)' }} />
+                            </div>
+
+                            <form onSubmit={handleLogin} className="space-y-5">
                                 <div className="relative">
-                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                                    <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none" style={{ color: 'rgba(212,175,55,0.5)' }}>
+                                        <IconKey />
                                     </div>
                                     <input
                                         type={showPassword ? "text" : "password"}
-                                        className="w-full pl-12 pr-12 py-4 bg-black/50 border border-white/10 text-white placeholder-gray-600 rounded-xl focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/50 transition-all font-mono tracking-widest text-lg shadow-inner"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
-                                        placeholder="PASSKEY"
+                                        placeholder="Enter Passkey..."
                                         required
+                                        className="w-full pl-12 pr-12 py-4 rounded-xl font-parchment text-base tracking-widest"
+                                        style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(212,175,55,0.2)', color: '#f0d060', outline: 'none' }}
+                                        onFocus={e => e.target.style.borderColor = 'rgba(212,175,55,0.6)'}
+                                        onBlur={e => e.target.style.borderColor = 'rgba(212,175,55,0.2)'}
                                     />
-                                    <button type="button" onClick={() => setShowPassword(p => !p)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors">
+                                    <button type="button" onClick={() => setShowPassword(p => !p)}
+                                        className="absolute right-4 top-1/2 -translate-y-1/2 text-xl"
+                                        style={{ color: 'rgba(212,175,55,0.5)' }}>
                                         {showPassword ? '🙈' : '👁️'}
                                     </button>
                                 </div>
-                                {error && <p className="text-red-400 text-xs text-center font-bold tracking-wide bg-red-500/10 py-3 rounded-xl border border-red-500/20">{error}</p>}
-                            </div>
 
-                            <button type="submit" disabled={submitting} className="w-full relative group bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-500 hover:to-red-500 border border-orange-500/50 disabled:opacity-50 text-white py-4 rounded-xl shadow-[0_0_20px_rgba(234,88,12,0.3)] hover:shadow-[0_0_30px_rgba(234,88,12,0.5)] transition-all font-bold tracking-widest uppercase hover:-translate-y-0.5 overflow-hidden">
-                                <div className="absolute inset-0 bg-white/20 w-1/2 -skew-x-12 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></div>
-                                {submitting ? 'Authenticating...' : 'Authorize'}
-                            </button>
-                        </form>
+                                {error && (
+                                    <div className="text-center py-3 px-4 rounded-xl text-sm font-parchment"
+                                        style={{ background: 'rgba(139,37,0,0.2)', border: '1px solid rgba(139,37,0,0.4)', color: '#f87171' }}>
+                                        ⚓ {error}
+                                    </div>
+                                )}
+
+                                <button type="submit" className="submit-btn w-full py-4 rounded-xl text-lg font-bold uppercase">
+                                    ⚓ Board the Ship
+                                </button>
+                            </form>
+                        </div>
+
+                        {/* Gold bottom line */}
+                        <div className="h-[1px] w-full" style={{ background: 'linear-gradient(90deg, transparent, rgba(212,175,55,0.3), transparent)' }} />
                     </div>
+
+                    <p className="text-center mt-4 text-xs font-parchment italic" style={{ color: 'rgba(200,169,110,0.4)' }}>
+                        HackSail 2K26 · Evaluation Deck · Authorized Personnel Only
+                    </p>
                 </div>
             </div>
         );
     }
 
+    // ── LOADING ────────────────────────────────────────────────────────────────
     if (loading) return (
-        <div className="h-screen flex items-center justify-center bg-gray-950 flex-col gap-6">
+        <div className="h-screen flex flex-col items-center justify-center gap-6"
+            style={{ background: 'linear-gradient(160deg, #050810, #0a0e1a)' }}>
             <style dangerouslySetInnerHTML={{ __html: inlineStyles }} />
-            <div className="relative w-24 h-24">
-                <div className="absolute inset-0 rounded-full border-t-2 border-orange-500 animate-spin shadow-[0_0_15px_rgba(234,88,12,0.5)]"></div>
-                <div className="absolute inset-2 rounded-full border-r-2 border-red-500 animate-[spin_1.5s_linear_infinite_reverse]"></div>
-            </div>
-            <p className="text-orange-500 font-mono tracking-widest text-lg animate-pulse font-bold">SYNCHRONIZING TERMINAL...</p>
+            <div className="animate-spin-slow text-6xl">🧭</div>
+            <p className="font-pirata text-xl tracking-widest animate-pulse" style={{ color: '#d4af37' }}>
+                Charting the Seas...
+            </p>
         </div>
     );
 
     const currentTeam = currentTeamIndex !== null ? filteredTeams[currentTeamIndex] : null;
     const isAlreadyMarked = currentTeam ? (reviewRound === 1 ? currentTeam.FirstReview : currentTeam.SecoundReview) : false;
 
+    // ── MAIN DASHBOARD ─────────────────────────────────────────────────────────
     return (
-        <div className="min-h-screen bg-gray-950 text-gray-200 font-sans relative overflow-hidden" style={{ backgroundImage: "url('/background.jpeg')", backgroundSize: 'cover', backgroundAttachment: 'fixed' }}>
+        <div className="min-h-screen text-gray-200"
+            style={{ background: 'linear-gradient(160deg, #050810 0%, #0a0e1a 50%, #08121e 100%)' }}>
             <style dangerouslySetInnerHTML={{ __html: inlineStyles }} />
+            <div className="stars" />
 
-            {/* Background Effects */}
-            <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-0 pointer-events-none"></div>
-            <div className="fixed top-0 left-0 w-full h-[500px] bg-orange-600/5 rounded-[100%] blur-[120px] mix-blend-screen z-0 pointer-events-none"></div>
+            {/* Ambient glows */}
+            <div className="fixed top-0 left-0 w-full h-px pointer-events-none" style={{ background: 'linear-gradient(90deg, transparent, rgba(212,175,55,0.4), transparent)' }} />
+            <div className="fixed top-0 left-0 w-1/3 h-96 pointer-events-none animate-slow-pulse"
+                style={{ background: 'radial-gradient(ellipse at top left, rgba(212,100,10,0.07), transparent)' }} />
+            <div className="fixed bottom-0 right-0 w-1/3 h-64 pointer-events-none"
+                style={{ background: 'radial-gradient(ellipse at bottom right, rgba(10,50,100,0.15), transparent)' }} />
 
             <div className="relative z-10 flex flex-col lg:flex-row h-screen">
 
-                {/* Sidebar - Team Roster */}
-                <aside className="w-full lg:w-80 xl:w-96 flex-shrink-0 bg-black/40 backdrop-blur-2xl border-r border-white/10 flex flex-col h-[45vh] lg:h-screen shadow-[10px_0_30px_rgba(0,0,0,0.5)] z-20">
-                    <div className="p-6 bg-gradient-to-b from-white/5 to-transparent border-b border-white/5">
-                        <h2 className="text-xl font-bold font-naruto text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-500 tracking-widest uppercase flex items-center gap-2">
-                            <IconTarget /> Rosters
-                        </h2>
+                {/* ── SIDEBAR ── */}
+                <aside className="w-full lg:w-80 xl:w-96 flex-shrink-0 flex flex-col h-[45vh] lg:h-screen z-20"
+                    style={{ background: 'rgba(5,8,16,0.9)', borderRight: '1px solid rgba(212,175,55,0.15)', backdropFilter: 'blur(20px)' }}>
+
+                    {/* Sidebar Header */}
+                    <div className="p-5 flex-shrink-0" style={{ borderBottom: '1px solid rgba(212,175,55,0.1)' }}>
+                        <div className="flex items-center gap-3 mb-3">
+                            <span className="text-2xl">🗺️</span>
+                            <h2 className="font-pirata text-xl tracking-wider gold-shimmer">Crew Manifest</h2>
+                        </div>
+                        <div className="relative">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm" style={{ color: 'rgba(212,175,55,0.5)' }}>🔍</span>
+                            <input
+                                type="text"
+                                placeholder="Search crew by name or #..."
+                                value={searchQuery}
+                                onChange={e => setSearchQuery(e.target.value)}
+                                className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm font-parchment"
+                                style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(212,175,55,0.15)', color: '#d4af37', outline: 'none' }}
+                                onFocus={e => e.target.style.borderColor = 'rgba(212,175,55,0.4)'}
+                                onBlur={e => e.target.style.borderColor = 'rgba(212,175,55,0.15)'}
+                            />
+                        </div>
                     </div>
 
-                    <div className="p-4 relative">
-                        <IconSearch />
-                        <input
-                            type="text"
-                            placeholder="Filter by Name or ID..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full bg-black/40 text-white rounded-xl pl-12 pr-4 py-3.5 border border-white/10 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/30 transition-all shadow-inner placeholder-gray-600 font-mono text-sm"
-                        />
+                    {/* Team count pill */}
+                    <div className="px-5 py-2 flex-shrink-0">
+                        <span className="text-xs font-parchment tracking-widest" style={{ color: 'rgba(212,175,55,0.5)' }}>
+                            {filteredTeams.length} crew aboard
+                        </span>
                     </div>
 
-                    <div className="flex-grow overflow-y-auto px-4 pb-4 space-y-3 custom-scrollbar">
+                    {/* Team List */}
+                    <div className="flex-grow overflow-y-auto px-3 pb-4 space-y-1.5 custom-scrollbar">
                         {filteredTeams.length > 0 ? (
                             filteredTeams.map((team, index) => {
                                 const isMarked = reviewRound === 1 ? team.FirstReview : team.SecoundReview;
                                 const isSelected = currentTeamIndex === index;
                                 return (
-                                    <button
-                                        key={team._id}
-                                        onClick={() => handleTeamSelect(index)}
-                                        className={`w-full text-left p-4 rounded-xl flex items-center justify-between transition-all duration-300 border-l-4 ${isSelected ? 'bg-orange-500/10 border-orange-500 shadow-[inset_0_0_20px_rgba(234,88,12,0.1)]' : 'bg-white/[0.03] border-transparent hover:bg-white/[0.06] hover:border-orange-500/30'}`}
-                                    >
+                                    <button key={team._id} onClick={() => handleTeamSelect(index)}
+                                        className={`team-btn w-full text-left px-4 py-3 rounded-xl flex items-center justify-between ${isSelected ? 'active' : ''}`}>
                                         <div className="flex items-center gap-3 overflow-hidden">
-                                            <span className={`text-sm font-mono font-bold w-6 text-right ${isSelected ? 'text-orange-400' : 'text-gray-500'}`}>
-                                                {team.teamNumber}.
+                                            <span className="text-xs font-mono font-bold w-6 text-right flex-shrink-0"
+                                                style={{ color: isSelected ? '#d4af37' : 'rgba(212,175,55,0.4)' }}>
+                                                {team.teamNumber}
                                             </span>
                                             <div className="flex flex-col overflow-hidden">
-                                                <span className={`font-bold truncate tracking-wide ${isSelected ? 'text-white' : 'text-gray-300'}`}>
+                                                <span className="font-parchment font-bold truncate"
+                                                    style={{ color: isSelected ? '#f0d060' : '#b0a080' }}>
                                                     {team.teamname}
                                                 </span>
-                                                <span className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold truncate mt-0.5">
-                                                    {team.Sector}
+                                                <span className="text-[10px] tracking-widest uppercase truncate"
+                                                    style={{ color: 'rgba(212,175,55,0.4)' }}>
+                                                    {team.Sector} Sector
                                                 </span>
                                             </div>
                                         </div>
                                         {isMarked && (
-                                            <div className="ml-2 flex-shrink-0 animate-fade-in">
-                                                <IconCheckCircle />
-                                            </div>
+                                            <span className="ml-2 flex-shrink-0 text-green-400 animate-fade-in" title="Scored">
+                                                <IconSeal />
+                                            </span>
                                         )}
                                     </button>
                                 );
                             })
                         ) : (
-                            <p className="text-center text-gray-500 pt-8 font-mono text-sm tracking-widest">NO MATCHES FOUND</p>
+                            <div className="text-center pt-10">
+                                <p className="font-pirata text-lg" style={{ color: 'rgba(212,175,55,0.4)' }}>No Crew Found</p>
+                                <p className="text-xs mt-1 font-parchment" style={{ color: 'rgba(200,169,110,0.3)' }}>The seas are empty...</p>
+                            </div>
                         )}
                     </div>
                 </aside>
 
-                {/* Main Content Area */}
-                <main className="flex-1 flex flex-col h-[55vh] lg:h-screen relative z-10 transition-all">
+                {/* ── MAIN CONTENT ── */}
+                <main className="flex-1 flex flex-col h-[55vh] lg:h-screen relative z-10">
 
-                    {/* Header Top Bar */}
-                    <header className="flex-shrink-0 bg-black/60 backdrop-blur-xl border-b border-white/10 px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4 z-20">
-                        <div className="relative group">
-                            <div className="absolute inset-0 bg-orange-500/20 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    {/* Top Bar */}
+                    <header className="flex-shrink-0 px-6 py-3 flex flex-col sm:flex-row justify-between items-center gap-3 z-20"
+                        style={{ background: 'rgba(5,8,16,0.95)', borderBottom: '1px solid rgba(212,175,55,0.12)', backdropFilter: 'blur(20px)' }}>
+
+                        {/* Phase selector */}
+                        <div className="flex items-center gap-3">
+                            <span style={{ color: 'rgba(212,175,55,0.6)' }}><IconCompass /></span>
                             <select
                                 value={reviewRound}
-                                onChange={(e) => { setReviewRound(Number(e.target.value)); setCurrentTeamIndex(null); }}
-                                className="relative bg-black/50 border border-white/10 text-white font-bold tracking-widest text-sm uppercase px-5 py-2.5 rounded-xl appearance-none focus:outline-none focus:border-orange-500 hover:border-orange-500/50 transition-all cursor-pointer pr-10 shadow-inner"
-                            >
-                                <option value={1} className="bg-gray-900">Phase 1 Evaluation</option>
-                                <option value={2} className="bg-gray-900">Phase 2 Final Evaluation</option>
+                                onChange={e => { setReviewRound(Number(e.target.value)); setCurrentTeamIndex(null); }}
+                                className="font-pirata text-sm tracking-wider px-4 py-2 rounded-lg appearance-none cursor-pointer"
+                                style={{ background: 'rgba(0,0,0,0.6)', border: '1px solid rgba(212,175,55,0.25)', color: '#d4af37', outline: 'none' }}>
+                                <option value={1} className="bg-gray-900"> Phase I — First Review</option>
+                                <option value={2} className="bg-gray-900"> Phase II — Final Review</option>
                             </select>
-                            <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-orange-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                         </div>
 
-                        <div className="flex items-center gap-6">
-                            <div className="flex items-center gap-3">
-                                <div className="w-2 h-2 rounded-full bg-green-500 animate-[pulse_2s_infinite] shadow-[0_0_10px_rgba(34,197,94,0.6)]"></div>
-                                <h2 className="text-sm font-bold tracking-widest uppercase text-gray-300">
-                                    Terminal: <span className="text-orange-400">{judge === 'judge1' ? "Alpha" : "Beta"}</span>
-                                </h2>
+                        {/* Judge + logout */}
+                        <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" style={{ boxShadow: '0 0 8px rgba(74,222,128,0.7)' }} />
+                                <span className="font-parchment text-sm" style={{ color: 'rgba(212,175,55,0.8)' }}>
+                                    {judgeLabel}: <span style={{ color: '#f0d060' }}>{judge === 'judge1' ? 'Harsha' : 'Bhuvan'}</span>
+                                </span>
                             </div>
-                            <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-red-500/10 text-gray-400 hover:text-red-400 border border-transparent hover:border-red-500/30 rounded-lg transition-all text-xs font-bold uppercase tracking-wider">
-                                <IconLogout /> <span className="hidden sm:inline">SignOut</span>
+                            <button onClick={handleLogout}
+                                className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all"
+                                style={{ border: '1px solid rgba(139,37,0,0.4)', color: 'rgba(248,113,113,0.7)', background: 'rgba(139,37,0,0.1)' }}
+                                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(139,37,0,0.25)'; e.currentTarget.style.color = '#f87171'; }}
+                                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(139,37,0,0.1)'; e.currentTarget.style.color = 'rgba(248,113,113,0.7)'; }}>
+                                <IconLogout /> <span className="hidden sm:inline">Log out</span>
                             </button>
                         </div>
                     </header>
 
-                    {/* Content Panel */}
+                    {/* Content */}
                     {currentTeam ? (
-                        <div className="flex-1 overflow-y-auto p-6 md:p-10 custom-scrollbar flex flex-col justify-between h-full bg-black/20">
+                        <div className="flex-1 overflow-y-auto p-5 md:p-8 custom-scrollbar flex flex-col gap-6">
 
-                            <div className="animate-fade-in-up flex-grow">
-                                <div className="mb-8">
-                                    <div className="flex flex-wrap items-center gap-4 mb-2">
-                                        <h1 className="text-4xl md:text-5xl font-bold font-naruto text-white tracking-wide">
-                                            <span className="text-orange-500/50 mr-3 text-3xl">#{currentTeam.teamNumber}</span>
-                                            {currentTeam.teamname}
-                                        </h1>
-                                        <span className="px-3 py-1 bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold uppercase tracking-widest rounded-md shadow-[0_0_10px_rgba(245,158,11,0.2)]">
-                                            {currentTeam.Sector} Sector
-                                        </span>
+                            {/* Team Title */}
+                            <div className="animate-fade-up">
+                                <div className="flex flex-wrap items-start gap-3 mb-1">
+                                    <div>
+                                        <div className="flex items-center gap-3 flex-wrap">
+                                            <span className="font-mono text-2xl" style={{ color: 'rgba(212,175,55,0.4)' }}>
+                                                #{currentTeam.teamNumber}
+                                            </span>
+                                            <h1 className="font-pirata text-4xl md:text-5xl" style={{ color: '#f0d060', textShadow: '0 0 20px rgba(212,175,55,0.25)' }}>
+                                                {currentTeam.teamname}
+                                            </h1>
+                                            <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest"
+                                                style={{ background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.3)', color: '#d4af37' }}>
+                                                {currentTeam.Sector}
+                                            </span>
+                                        </div>
+                                        <p className="font-parchment text-sm mt-1" style={{ color: 'rgba(200,169,110,0.6)' }}>
+                                            Status: <em className="not-italic" style={{ color: isReviewOpen ? '#86efac' : '#f87171' }}>
+                                                {isReviewOpen ? 'Awaiting Judgment...' : 'Gates Sealed by Order of the Captain'}
+                                            </em>
+                                        </p>
                                     </div>
-                                    <p className="text-gray-400 tracking-wide">Status: <strong className="text-white">{isReviewOpen ? "Awaiting Assessment..." : "Assessment Locked by Admin"}</strong></p>
                                 </div>
 
-                                {isReviewOpen ? (
-                                    <div className="space-y-3">
-                                        {Object.keys(scores).map((key, i) => (
-                                            <div key={key} className="flex justify-between items-center bg-black/40 backdrop-blur-md border border-white/5 hover:border-orange-500/30 rounded-xl p-4 transition-all duration-300 group hover:shadow-[0_0_20px_rgba(234,88,12,0.1)] relative overflow-hidden" style={{ animationDelay: `${i * 100}ms` }}>
-                                                <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-orange-500 to-red-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                                <span className="text-lg font-bold text-white tracking-wide relative z-10 w-2/3">{scores[key].criteria}</span>
-                                                <div className="flex items-center gap-4 relative z-10">
-                                                    <input
-                                                        type="number"
-                                                        value={scores[key].marks}
-                                                        onChange={(e) => handleScoreChange(key, e.target.value)}
-                                                        onWheel={(e) => e.target.blur()}
-                                                        className="w-20 px-3 py-2 rounded-lg bg-white/5 text-white border border-gray-600 focus:border-orange-500 text-center text-xl font-bold font-mono focus:outline-none focus:ring-1 focus:ring-orange-500/50 transition-all shadow-inner"
-                                                        max={scores[key].max}
-                                                        min="0"
-                                                        placeholder="0"
-                                                    />
-                                                    <span className="text-gray-500 font-bold font-mono text-xl w-10 text-right">/ {scores[key].max}</span>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <div className="flex flex-col items-center justify-center p-12 bg-black/40 border border-white/5 rounded-3xl mt-8 text-center relative overflow-hidden">
-                                        <div className="absolute -inset-10 bg-gradient-to-br from-red-500/10 to-transparent blur-3xl"></div>
-                                        <div className="w-20 h-20 bg-red-500/10 border border-red-500/20 rounded-full flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(239,68,68,0.2)]">
-                                            <svg className="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                                        </div>
-                                        <h2 className="text-3xl font-bold text-white font-naruto tracking-widest mb-2">ASSESSMENT LOCKED</h2>
-                                        <p className="text-gray-400">The gateway for this review phase is currently sealed by command.</p>
-                                    </div>
-                                )}
+                                {/* Rope divider */}
+                                <div className="mt-4 h-px w-full" style={{ background: 'repeating-linear-gradient(90deg, rgba(212,175,55,0.2) 0px, rgba(212,175,55,0.2) 6px, transparent 6px, transparent 12px)' }} />
                             </div>
 
-                            {/* Evaluation Action Bar */}
-                            <div className="mt-8 pt-6 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6 animate-fade-in">
-                                <div className="flex items-center gap-4 bg-black/50 px-6 py-4 rounded-2xl border border-white/5 shadow-inner">
-                                    <span className="text-sm font-bold text-gray-500 uppercase tracking-widest">Aggregate Rating</span>
+                            {/* Scoring Panel */}
+                            {isReviewOpen ? (
+                                <div className="space-y-2.5 animate-fade-up flex-grow">
+                                    {Object.keys(scores).map((key, i) => (
+                                        <div key={key} className="score-row rounded-xl px-5 py-4 flex items-center justify-between"
+                                            style={{ animationDelay: `${i * 80}ms` }}>
+                                            <div className="flex items-center gap-3">
+                                                <span style={{ color: 'rgba(212,175,55,0.4)' }}><IconScroll /></span>
+                                                <span className="font-parchment font-bold text-base" style={{ color: '#c8a96e' }}>
+                                                    {scores[key].criteria}
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center gap-3 flex-shrink-0">
+                                                <input
+                                                    type="number"
+                                                    value={scores[key].marks}
+                                                    onChange={e => handleScoreChange(key, e.target.value)}
+                                                    onWheel={e => e.target.blur()}
+                                                    className="score-input w-16 py-2 rounded-lg"
+                                                    max={scores[key].max}
+                                                    min="0"
+                                                    placeholder="0"
+                                                />
+                                                <span className="font-pirata text-base w-8 text-right" style={{ color: 'rgba(212,175,55,0.45)' }}>
+                                                    /{scores[key].max}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="flex-grow flex flex-col items-center justify-center py-16 rounded-2xl animate-fade-up"
+                                    style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(139,37,0,0.3)' }}>
+                                    <div className="text-6xl mb-4 animate-float">🔒</div>
+                                    <h2 className="font-pirata text-3xl mb-2" style={{ color: '#f87171', textShadow: '0 0 20px rgba(239,68,68,0.3)' }}>
+                                        Admin locked
+                                    </h2>
+                                    <p className="font-parchment text-center max-w-sm" style={{ color: 'rgba(200,169,110,0.5)' }}>
+                                        The Captain has locked this review phase. Stand by for orders.
+                                    </p>
+                                </div>
+                            )}
+
+                            {/* Footer Action Bar */}
+                            <div className="flex-shrink-0 pt-4 flex flex-col md:flex-row justify-between items-center gap-4"
+                                style={{ borderTop: '1px solid rgba(212,175,55,0.12)' }}>
+
+                                {/* Total score */}
+                                <div className="flex items-center gap-4 px-6 py-4 rounded-2xl"
+                                    style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(212,175,55,0.15)' }}>
+                                    <span className="font-pirata text-sm tracking-widest uppercase" style={{ color: 'rgba(212,175,55,0.5)' }}>
+                                        Total Bounty
+                                    </span>
                                     <div className="flex items-baseline gap-1">
-                                        <span className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-500 font-mono tracking-tighter">
-                                            {calculateTotalMarks()}
-                                        </span>
-                                        <span className="text-xl font-bold text-gray-600 font-mono">/{maxMarks}</span>
+                                        <span className="font-pirata text-4xl gold-shimmer">{calculateTotal()}</span>
+                                        <span className="font-pirata text-xl" style={{ color: 'rgba(212,175,55,0.4)' }}>/{maxMarks}</span>
                                     </div>
                                 </div>
 
                                 <div className="flex items-center gap-4 w-full md:w-auto">
                                     {submitStatus && (
-                                        <div className={`px-5 py-3 rounded-xl border flex items-center gap-2 text-sm font-bold tracking-wide animate-fade-in ${submitStatus.type === 'success' ? 'bg-green-500/10 text-green-400 border-green-500/30' : 'bg-red-500/10 text-red-400 border-red-500/30'}`}>
-                                            {submitStatus.type === 'success' ? <IconCheckCircle /> : <span>⚠️</span>}
-                                            {submitStatus.message}
+                                        <div className={`px-4 py-3 rounded-xl text-sm font-parchment flex items-center gap-2 animate-fade-in`}
+                                            style={{
+                                                background: submitStatus.type === 'success' ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)',
+                                                border: `1px solid ${submitStatus.type === 'success' ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.3)'}`,
+                                                color: submitStatus.type === 'success' ? '#86efac' : '#f87171'
+                                            }}>
+                                            {submitStatus.type === 'success' ? '⚓' : '⚠️'} {submitStatus.message}
                                         </div>
                                     )}
 
                                     {isAlreadyMarked ? (
-                                        <div className="px-8 py-4 rounded-xl bg-green-500/10 text-green-400 border border-green-500/30 font-bold uppercase tracking-widest text-sm flex items-center gap-2 shadow-[0_0_15px_rgba(34,197,94,0.15)]">
-                                            <IconCheckCircle /> Verified & Sealed
+                                        <div className="flex items-center gap-2 px-6 py-3 rounded-xl font-pirata tracking-widest uppercase text-sm"
+                                            style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.3)', color: '#86efac', boxShadow: '0 0 15px rgba(34,197,94,0.1)' }}>
+                                            <IconSeal /> Log Sealed
                                         </div>
                                     ) : (
-                                        <button
-                                            onClick={handleSubmitScores}
+                                        <button onClick={handleSubmitScores}
                                             disabled={submitting || !isReviewOpen}
-                                            className="w-full md:w-auto relative group bg-gradient-to-r from-orange-500 to-red-600 border border-orange-500/50 hover:from-orange-400 hover:to-red-500 text-white font-bold py-4 px-10 rounded-xl transition-all uppercase tracking-widest shadow-[0_0_20px_rgba(234,88,12,0.3)] hover:shadow-[0_0_30px_rgba(234,88,12,0.5)] disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden hover:-translate-y-0.5"
-                                        >
-                                            <div className="absolute inset-0 bg-white/20 w-1/2 -skew-x-12 -translate-x-12 opacity-0 group-hover:opacity-100 group-hover:animate-pulse transition-opacity"></div>
-                                            {submitting ? "Processing..." : "Commit Evaluation"}
+                                            className="submit-btn w-full md:w-auto px-8 py-4 rounded-xl text-base">
+                                            {submitting ? '⏳ Recording...' : '📜 Seal in the Log'}
                                         </button>
                                     )}
                                 </div>
                             </div>
-
                         </div>
                     ) : (
-                        <div className="flex-1 flex flex-col items-center justify-center text-center p-12 bg-black/20">
-                            <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mb-6 border border-white/10 opacity-50 relative animate-float">
-                                <div className="absolute inset-0 rounded-full border border-orange-500/20 animate-slow-pulse"></div>
-                                <IconSearch />
+                        /* Empty state */
+                        <div className="flex-1 flex flex-col items-center justify-center gap-6 p-12"
+                            style={{ background: 'rgba(0,0,0,0.2)' }}>
+                            <div className="relative animate-float">
+                                <div className="absolute inset-0 rounded-full animate-slow-pulse"
+                                    style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.1), transparent)' }} />
+                                <span className="text-7xl relative z-10" style={{ filter: 'drop-shadow(0 0 20px rgba(212,175,55,0.3))' }}>🧭</span>
                             </div>
-                            <h2 className="text-3xl font-bold text-gray-400 font-naruto tracking-widest uppercase mb-2">Awaiting Target</h2>
-                            <p className="text-gray-500 max-w-sm tracking-wide">Select a crew from the roster database on the left to initialize the assessment sequence.</p>
+                            <div className="text-center">
+                                <h2 className="font-pirata text-3xl mb-2" style={{ color: 'rgba(212,175,55,0.6)' }}>
+                                    Awaiting Orders, Captain
+                                </h2>
+                                <p className="font-parchment text-center max-w-sm" style={{ color: 'rgba(200,169,110,0.4)' }}>
+                                    Select a crew from the manifest on the left to begin the assessment voyage.
+                                </p>
+                            </div>
+                            <div className="flex gap-3 text-2xl opacity-30">
+                                <span>⚓</span><span>🏴‍☠️</span><span>⚓</span>
+                            </div>
                         </div>
                     )}
                 </main>

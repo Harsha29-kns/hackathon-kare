@@ -10,6 +10,7 @@ const inlineStyles = `
   @keyframes fade-in-up { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes shake { 0%, 100% { transform: translateX(0); } 10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); } 20%, 40%, 60%, 80% { transform: translateX(5px); } }
   @keyframes pulse-slow { 0%, 100% { opacity: 0.2; } 50% { opacity: 0.5; } }
+  @keyframes scan-line { 0% { top: 0%; } 100% { top: 100%; } }
   .animate-fade-in { animation: fade-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
   .animate-fade-in-up { animation: fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
   .animate-shake { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
@@ -25,13 +26,13 @@ const IconX = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="2
 const IconSearch = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>;
 const IconChevronDown = () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>;
 const IconLogout = () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>;
+const IconQrCode = () => <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="5" height="5" x="3" y="3" rx="1" /><rect width="5" height="5" x="16" y="3" rx="1" /><rect width="5" height="5" x="3" y="16" rx="1" /><path d="M21 16h-3a2 2 0 0 0-2 2v3" /><path d="M21 21v.01" /><path d="M12 7v3a2 2 0 0 1-2 2H7" /><path d="M3 12h.01" /><path d="M12 3h.01" /><path d="M12 16v.01" /><path d="M16 12h1" /><path d="M21 12v.01" /><path d="M12 21v-1" /></svg>;
 
 // --- Helper Components ---
 const MemberRow = ({ member, status, onScan, onToggle, isDisabled }) => {
     const isPresent = status === "Present";
     const isAbsent = status === "Absent";
 
-    // Dynamic styling based on status
     let cardBg = "bg-white/5 border-white/5 hover:bg-white/10";
     let statusGlow = "";
     if (isPresent) {
@@ -80,7 +81,8 @@ const MemberRow = ({ member, status, onScan, onToggle, isDisabled }) => {
     );
 };
 
-const AttenCard = ({ team, round }) => {
+// autoMarkAllPresent: when true, init all members as Present (triggered by lead QR scan)
+const AttenCard = ({ team, round, autoMarkAllPresent = false }) => {
     const [attendance, setAttendance] = useState({});
     const [isScannerOpen, setIsScannerOpen] = useState(false);
     const [done, setDone] = useState(false);
@@ -94,20 +96,30 @@ const AttenCard = ({ team, round }) => {
         const leadData = { ...team.lead, name: team.name, registrationNumber: team.registrationNumber, isLead: true };
         const allMembers = [leadData, ...team.teamMembers].filter(Boolean);
 
-        allMembers.forEach(member => {
-            if (member && member.attendance) {
-                const memberAttd = member.attendance.find(a => a.round == round);
-                if (memberAttd) {
-                    initialAttendance[member.registrationNumber] = memberAttd.status;
-                    if (member.isLead) isSubmitted = true;
+        if (autoMarkAllPresent) {
+            // Auto-mark everyone as Present (triggered by lead QR scan)
+            allMembers.forEach(member => {
+                if (member && member.registrationNumber) {
+                    initialAttendance[member.registrationNumber] = "Present";
                 }
-            }
-        });
+            });
+        } else {
+            // Normal path: load existing attendance from DB
+            allMembers.forEach(member => {
+                if (member && member.attendance) {
+                    const memberAttd = member.attendance.find(a => a.round == round);
+                    if (memberAttd) {
+                        initialAttendance[member.registrationNumber] = memberAttd.status;
+                        if (member.isLead) isSubmitted = true;
+                    }
+                }
+            });
+        }
 
         setAttendance(initialAttendance);
         setDone(isSubmitted);
         setEditMode(false);
-    }, [team, round]);
+    }, [team, round, autoMarkAllPresent]);
 
     const openScannerFor = (member) => {
         setMemberToScan(member);
@@ -185,6 +197,12 @@ const AttenCard = ({ team, round }) => {
                             <span className="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
                             <p className="text-xs text-orange-200/60 tracking-widest uppercase font-semibold">Attendance File • Round {round}</p>
                         </div>
+                        {autoMarkAllPresent && !done && (
+                            <span className="inline-flex items-center gap-1.5 mt-2 text-xs font-bold text-green-400 bg-green-500/10 border border-green-500/30 px-2.5 py-1 rounded-full">
+                                <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span>
+                                QR Scan — All auto-marked Present
+                            </span>
+                        )}
                     </div>
                     <span className={`px-4 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase shadow-lg border backdrop-blur-md ${done ? "bg-green-500/10 text-green-400 border-green-500/30 shadow-[0_0_15px_rgba(34,197,94,0.2)]" : "bg-yellow-500/10 text-yellow-400 border-yellow-500/30 shadow-[0_0_15px_rgba(234,179,8,0.2)]"}`}>
                         {done ? "✔ Submitted" : "⏳ Pending"}
@@ -221,16 +239,19 @@ function Attd() {
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [selectedTeam, setSelectedTeam] = useState(null);
+    const [autoMarkAllPresent, setAutoMarkAllPresent] = useState(false);
     const [selectedSector, setSelectedSector] = useState(null);
-    const sectors = ["Sea", "Island", "Jungle"];
+    const [isLeadScannerOpen, setIsLeadScannerOpen] = useState(false);
+    const [leadScanError, setLeadScanError] = useState("");
+    const sectors = ["Jack Sparrow", "Barbossa", "jones"];
     const location = useLocation();
     const params = new URLSearchParams(location.search);
     const round = params.get("round") || "1";
 
     const sectorPasswords = {
-        Naruto: "score2025",
-        Sasuke: "hackforge",
-        Itachi: "clubscore",
+        "Jack Sparrow": "score2025",
+        "Barbossa": "hackforge",
+        "jones": "clubscore",
     };
 
     useEffect(() => {
@@ -281,6 +302,54 @@ function Attd() {
         setPassword("");
         setTeams([]);
         setSelectedTeam(null);
+        setAutoMarkAllPresent(false);
+    };
+
+    // Handle dropdown change — normal path, no auto-mark
+    const handleDropdownChange = (teamId) => {
+        setSelectedTeam(teamId || null);
+        setAutoMarkAllPresent(false);
+    };
+
+    // Handle global lead QR scan
+    const handleLeadQrScan = (data) => {
+        if (!data) return;
+        setIsLeadScannerOpen(false);
+        setLeadScanError("");
+        try {
+            const scannedData = JSON.parse(data.text);
+            const { teamId, registrationNumber } = scannedData;
+
+            if (!teamId || !registrationNumber) {
+                setLeadScanError("Invalid QR code. Only team QR codes are supported.");
+                return;
+            }
+
+            // Find matching team
+            const matchedTeam = teams.find(t => t._id === teamId);
+            if (!matchedTeam) {
+                setLeadScanError("Team not found in this sector. Are you scanning the correct QR?");
+                return;
+            }
+
+            // Check if the scanned QR belongs to the LEAD
+            if (matchedTeam.registrationNumber !== registrationNumber) {
+                setLeadScanError(`This is a member QR, not the team lead's. Please scan the lead QR sticker on the table (Team: "${matchedTeam.teamname}").`);
+                return;
+            }
+
+            // All good — select team and auto-mark all Present
+            setSelectedTeam(matchedTeam._id);
+            setAutoMarkAllPresent(true);
+        } catch (e) {
+            setLeadScanError("Invalid QR format. Please try again.");
+        }
+    };
+
+    const handleLeadQrScanError = (err) => {
+        console.error(err);
+        setLeadScanError("Could not start camera. Please check permissions.");
+        setIsLeadScannerOpen(false);
     };
 
     if (!isAuthenticated) {
@@ -288,15 +357,12 @@ function Attd() {
             <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4 relative overflow-hidden" style={{ backgroundImage: `url('/background.jpeg')`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
                 <style dangerouslySetInnerHTML={{ __html: inlineStyles }} />
 
-                {/* Background Overlays & Decorative Elements */}
                 <div className="absolute inset-0 bg-black/70 backdrop-blur-sm z-0"></div>
                 <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-orange-600/20 rounded-full blur-[120px] mix-blend-screen z-0 animate-pulse-slow"></div>
                 <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-red-600/20 rounded-full blur-[120px] mix-blend-screen z-0"></div>
 
                 <div className="relative z-10 w-full max-w-md animate-fade-in-up">
                     <div className="bg-black/50 backdrop-blur-3xl border border-white/10 rounded-[2rem] shadow-[0_0_50px_rgba(0,0,0,0.8)] p-8 md:p-10 relative overflow-hidden">
-
-                        {/* Shimmer line */}
                         <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-orange-500 to-transparent opacity-50"></div>
 
                         {!selectedSector ? (
@@ -371,7 +437,6 @@ function Attd() {
         <div className="min-h-screen bg-gray-950 text-gray-200 font-sans relative overflow-x-hidden" style={{ backgroundImage: `url('/background1.jpeg')`, backgroundSize: 'cover', backgroundAttachment: 'fixed' }}>
             <style dangerouslySetInnerHTML={{ __html: inlineStyles }} />
 
-            {/* Background elements */}
             <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-0 pointer-events-none"></div>
             <div className="fixed top-0 left-1/4 w-[800px] h-[500px] bg-orange-600/10 rounded-[100%] blur-[120px] mix-blend-screen z-0 pointer-events-none transform -translate-x-1/2"></div>
 
@@ -403,6 +468,33 @@ function Attd() {
                         </div>
                     ) : (
                         <div className="max-w-4xl mx-auto">
+
+                            {/* ── SCAN TEAM LEAD QR BUTTON ── */}
+                            <div className="mb-5 animate-fade-in-up">
+                                <button
+                                    onClick={() => { setIsLeadScannerOpen(true); setLeadScanError(""); }}
+                                    className="w-full flex items-center justify-center gap-3 py-5 px-6 rounded-2xl font-bold text-lg tracking-wide transition-all duration-300 border border-green-500/40 bg-green-500/10 hover:bg-green-500/20 text-green-300 hover:text-green-200 shadow-[0_0_30px_rgba(34,197,94,0.1)] hover:shadow-[0_0_40px_rgba(34,197,94,0.2)] hover:-translate-y-0.5 group">
+                                    <span className="p-2 rounded-xl bg-green-500/20 group-hover:bg-green-500/30 transition-colors">
+                                        <IconQrCode />
+                                    </span>
+                                    <span>Scan Team Lead QR</span>
+                                    <span className="ml-auto text-xs font-normal text-green-500/60 hidden sm:block">Auto-marks all Present</span>
+                                </button>
+                                {leadScanError && (
+                                    <div className="mt-3 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm font-semibold animate-shake flex items-center gap-2">
+                                        <span>⚠️</span> {leadScanError}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* ── Divider ── */}
+                            <div className="flex items-center gap-3 mb-5 opacity-40">
+                                <div className="flex-1 h-px bg-white/10"></div>
+                                <span className="text-xs text-gray-500 uppercase tracking-widest font-semibold">or search manually</span>
+                                <div className="flex-1 h-px bg-white/10"></div>
+                            </div>
+
+                            {/* ── Dropdown search ── */}
                             <div className="mb-8 relative group animate-fade-in-up">
                                 <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-red-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
                                 <div className="relative flex items-center bg-black/50 backdrop-blur-2xl border border-white/10 rounded-2xl p-2 hover:border-orange-500/40 transition-all shadow-[0_0_30px_rgba(0,0,0,0.5)]">
@@ -411,7 +503,7 @@ function Attd() {
                                     </div>
                                     <select
                                         value={selectedTeam || ""}
-                                        onChange={(e) => setSelectedTeam(e.target.value)}
+                                        onChange={(e) => handleDropdownChange(e.target.value)}
                                         className="w-full bg-transparent text-white text-lg px-2 py-4 appearance-none focus:outline-none cursor-pointer tracking-wide font-medium flex-1 hide-scrollbar">
                                         <option value="" className="bg-gray-900 text-gray-400">Scan directory for target team...</option>
                                         {teams.map((t) => <option key={t._id} value={t._id} className="bg-gray-900 text-white font-sans text-base">{t.teamname}</option>)}
@@ -424,17 +516,21 @@ function Attd() {
 
                             <div className="transition-all duration-500 min-h-[500px]">
                                 {selectedTeam ? (
-                                    <AttenCard team={teams.find((t) => t._id === selectedTeam)} round={round} />
+                                    <AttenCard
+                                        team={teams.find((t) => t._id === selectedTeam)}
+                                        round={round}
+                                        autoMarkAllPresent={autoMarkAllPresent}
+                                    />
                                 ) : (
-                                    <div className="flex flex-col items-center justify-center p-12 bg-black/30 backdrop-blur-md border border-white/5 rounded-[2rem] mt-12 text-center relative overflow-hidden animate-fade-in-up">
+                                    <div className="flex flex-col items-center justify-center p-12 bg-black/30 backdrop-blur-md border border-white/5 rounded-[2rem] mt-4 text-center relative overflow-hidden animate-fade-in-up">
                                         <div className="absolute -inset-10 bg-gradient-to-br from-orange-500/10 to-transparent blur-3xl opacity-50"></div>
                                         <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mb-6 border border-white/10 shadow-[0_0_30px_rgba(0,0,0,0.5)]">
-                                            <div className="text-orange-500/50">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                                            <div className="text-green-500/60">
+                                                <IconQrCode />
                                             </div>
                                         </div>
-                                        <h3 className="text-2xl font-bold text-white mb-3 font-naruto tracking-wider">AWAITING TARGET SELECTION</h3>
-                                        <p className="text-gray-400 max-w-sm tracking-wide leading-relaxed">Select a team from the dropdown directory above to access their personnel records and begin the attendance marking procedure.</p>
+                                        <h3 className="text-2xl font-bold text-white mb-3 font-naruto tracking-wider">AWAITING QR SCAN</h3>
+                                        <p className="text-gray-400 max-w-sm tracking-wide leading-relaxed">Scan the <span className="text-green-400 font-semibold">team lead's QR</span> stickered on the table, or select a team from the dropdown above.</p>
                                     </div>
                                 )}
                             </div>
@@ -442,6 +538,16 @@ function Attd() {
                     )}
                 </main>
             </div>
+
+            {/* Global Lead QR Scanner Modal */}
+            {isLeadScannerOpen && (
+                <QrScannerModal
+                    onScan={handleLeadQrScan}
+                    onError={handleLeadQrScanError}
+                    onClose={() => setIsLeadScannerOpen(false)}
+                    constraints={{ audio: false, video: { facingMode: "environment" } }}
+                />
+            )}
         </div>
     );
 }

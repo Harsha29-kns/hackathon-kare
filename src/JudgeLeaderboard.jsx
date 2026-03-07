@@ -54,16 +54,16 @@ function JudgeLeaderboard() {
 
                 // Sort teams alphabetically once to ensure consistent slicing
                 const sortedSasukeTeams = allTeams
-                    .filter(t => t.Sector === "Sasuke")
+                    .filter(t => t.Sector === "Jack Sparrow")
                     .sort((a, b) => a.teamname.localeCompare(b.teamname));
                 
                 // Assign teams to judges based on the specified logic
                 const judge1Teams = [
-                    ...allTeams.filter(t => t.Sector === "Naruto"),
+                    ...allTeams.filter(t => t.Sector === "Barbossa"),
                     ...sortedSasukeTeams.slice(0, 10)
                 ];
                 const judge2Teams = [
-                    ...allTeams.filter(t => t.Sector === "Itachi"),
+                    ...allTeams.filter(t => t.Sector === "jones"),
                     ...sortedSasukeTeams.slice(10)
                 ];
                 

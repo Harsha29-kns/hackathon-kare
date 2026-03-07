@@ -17,6 +17,7 @@ import AdminRegistrations from './AdminRegistrations';
 import Registration from './Registration';
 import PaymentPortal from './PaymentPortal';
 import EditDetails from './EditDetails';
+import Domains from './Domains'; // Added Domains route
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
       <Route path='/loginadmin' element={<Admin />} />
       <Route path='/qratt' element={<Attd />} />
       <Route path='/teamdash' element={<Teamdash />} />
+      <Route path='/domains' element={<Domains />} />
       <Route path='/rreview' element={<Review />} />
       <Route path='/TTeamMarks' element={<TeamMarks />} />
       <Route path='/attendance-details' element={<AttendanceDetail />} />

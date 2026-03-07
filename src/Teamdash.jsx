@@ -4,9 +4,9 @@ import api from "./api";
 import socket from "./socket";
 import "driver.js/dist/driver.css";
 import Modal from 'react-modal';
-import MemoryFlipGame from "./MemoryFlipGame"; //game file
-import NumberPuzzleGame from "./NumberPuzzleGame"; // Import the NumberPuzzleGame component
-import StopTheBarGame from "./StopTheBarGame";
+import CaptainsDecisionGame from "./CaptainsDecisionGame"; //game file
+import BlackPearlCipherGame from "./BlackPearlCipherGame"; // Black Pearl Cipher game
+import LostCompassGame from "./LostCompassGame";
 import { useNavigate } from "react-router-dom";
 import { Compass } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -15,7 +15,7 @@ import { motion } from 'framer-motion';
 const scorecraft = "/scorecraft.jpg";
 const king = "/king.png";
 const hacksail = "/HackSail.png";
-const hacksailr = "/HackSailr.png";
+const hacksailr = "/Hacksailr.png";
 const missionBg = "/mission.jpg";
 
 // --- MODAL STYLES ---
@@ -23,7 +23,7 @@ const customModalStyles = {
     content: {
         top: '50%', left: '50%', right: 'auto', bottom: 'auto',
         transform: 'translate(-50%, -50%)', backgroundColor: '#111827',
-        border: '1px solid #f97316', borderRadius: '1rem', padding: '2rem',
+        border: '1px solid #a855f7', borderRadius: '1rem', padding: '2rem',
         maxWidth: '90vw', width: 'auto', maxHeight: '90vh', color: 'white', zIndex: 1001,
     },
     overlay: { backgroundColor: 'rgba(0, 0, 0, 0.85)', zIndex: 1000 },
@@ -71,7 +71,7 @@ const TOAST_ICONS = {
 const TOAST_STYLES = {
     success: 'bg-gray-900 border-l-4 border-green-500 text-green-300',
     error: 'bg-gray-900 border-l-4 border-red-500 text-red-300',
-    info: 'bg-gray-900 border-l-4 border-orange-500 text-orange-300',
+    info: 'bg-gray-900 border-l-4 border-purple-500 text-purple-300',
 };
 
 const ToastContainer = ({ toasts, onDismiss }) => (
@@ -84,7 +84,7 @@ const ToastContainer = ({ toasts, onDismiss }) => (
                     animate-[slideInRight_0.3s_ease-out]`}
                 style={{ animation: 'slideInRight 0.3s ease-out' }}
             >
-                <span className={toast.type === 'success' ? 'text-green-400' : toast.type === 'error' ? 'text-red-400' : 'text-orange-400'}>
+                <span className={toast.type === 'success' ? 'text-green-400' : toast.type === 'error' ? 'text-red-400' : 'text-purple-400'}>
                     {TOAST_ICONS[toast.type] || TOAST_ICONS.info}
                 </span>
                 <p className="flex-1 text-sm font-medium text-gray-100 leading-snug">{toast.message}</p>
@@ -110,13 +110,13 @@ const ToastContainer = ({ toasts, onDismiss }) => (
 const QrModal = ({ isOpen, onClose, qrUrl, name }) => (
     <Modal isOpen={isOpen} onRequestClose={onClose} style={{ ...customModalStyles, content: { ...customModalStyles.content, width: '320px' } }} contentLabel="QR Code">
         <div className="flex flex-col items-center justify-center gap-4">
-            <h3 className="text-xl font-bold text-orange-400">{name}</h3>
+            <h3 className="text-xl font-bold text-purple-400">{name}</h3>
             {qrUrl ? (
                 <img src={qrUrl} alt={`QR Code for ${name}`} className="w-64 h-64 bg-white p-2 rounded-lg" />
             ) : (
                 <p>QR Code not available.</p>
             )}
-            <button onClick={onClose} className="mt-4 px-8 py-2 bg-orange-600 rounded-lg font-semibold hover:bg-orange-700 transition-colors">Close</button>
+            <button onClick={onClose} className="mt-4 px-8 py-2 bg-purple-600 rounded-lg font-semibold hover:bg-purple-700 transition-colors">Close</button>
         </div>
     </Modal>
 );
@@ -155,7 +155,7 @@ function CountdownTimer({ targetTime, onTimerEnd }) {
 
     return (
         <div className="text-center text-gray-400 flex flex-col items-center justify-center gap-3 h-full">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
             <p className="font-semibold text-lg">Problem Statements selection opens in:</p>
             <p className="text-2xl font-bold text-white">{timeLeft}</p>
         </div>
@@ -205,19 +205,19 @@ const AttendanceModal = ({ isOpen, onClose, team, attendanceIcon }) => {
         >
             <div className="relative overflow-hidden flex flex-col h-full rounded-2xl">
                 {/* Header Gradient */}
-                <div className="bg-gradient-to-r from-orange-900/40 via-black/40 to-black px-6 py-5 flex justify-between items-center border-b border-orange-500/20">
+                <div className="bg-gradient-to-r from-purple-900/40 via-black/40 to-black px-6 py-5 flex justify-between items-center border-b border-purple-500/20">
                     <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-xl bg-orange-500/10 border border-orange-500/30 flex items-center justify-center shadow-[0_0_15px_rgba(234,88,12,0.2)] text-2xl">
+                        <div className="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center shadow-[0_0_15px_rgba(234,88,12,0.2)] text-2xl">
                             📊
                         </div>
                         <div>
-                            <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-orange-400 to-amber-500 font-naruto tracking-widest leading-none drop-shadow-md">
+                            <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-amber-500 font-naruto tracking-widest leading-none drop-shadow-md">
                                 ATTENDANCE
                             </h2>
-                            <p className="text-orange-200/60 text-xs tracking-widest uppercase mt-1">Directory: {team?.teamname}</p>
+                            <p className="text-purple-200/60 text-xs tracking-widest uppercase mt-1">Directory: {team?.teamname}</p>
                         </div>
                     </div>
-                    <button onClick={onClose} className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:text-white hover:bg-orange-500/20 border border-transparent hover:border-orange-500/50 transition-all text-xl">✕</button>
+                    <button onClick={onClose} className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:text-white hover:bg-purple-500/20 border border-transparent hover:border-purple-500/50 transition-all text-xl">✕</button>
                 </div>
 
                 {/* Content */}
@@ -226,8 +226,8 @@ const AttendanceModal = ({ isOpen, onClose, team, attendanceIcon }) => {
                         {team ? (
                             <div className="inline-flex flex-col gap-5 w-full">
                                 {/* Lead Card */}
-                                <div className="bg-gradient-to-r from-yellow-500/10 to-orange-500/5 border border-yellow-500/30 p-5 rounded-2xl relative overflow-hidden group shadow-[0_0_20px_rgba(234,179,8,0.05)]">
-                                    <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-yellow-400 to-orange-500"></div>
+                                <div className="bg-gradient-to-r from-yellow-500/10 to-purple-500/5 border border-yellow-500/30 p-5 rounded-2xl relative overflow-hidden group shadow-[0_0_20px_rgba(234,179,8,0.05)]">
+                                    <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-yellow-400 to-purple-500"></div>
                                     <div className="absolute -inset-20 bg-yellow-500/10 blur-3xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
 
                                     <div className="flex justify-between items-center mb-4 relative z-10">
@@ -278,8 +278,8 @@ const AttendanceModal = ({ isOpen, onClose, team, attendanceIcon }) => {
                             </div>
                         ) : (
                             <div className="flex flex-col items-center justify-center p-12 text-center h-48">
-                                <div className="w-12 h-12 border-t-2 border-orange-500 rounded-full animate-spin mb-4"></div>
-                                <p className="text-orange-400 font-mono tracking-widest text-sm animate-pulse">DECRYPTING DATA...</p>
+                                <div className="w-12 h-12 border-t-2 border-purple-500 rounded-full animate-spin mb-4"></div>
+                                <p className="text-purple-400 font-mono tracking-widest text-sm animate-pulse">DECRYPTING DATA...</p>
                             </div>
                         )}
                     </div>
@@ -291,8 +291,8 @@ const AttendanceModal = ({ isOpen, onClose, team, attendanceIcon }) => {
 
 
 
-const ReminderModal = ({ isOpen, onClose, reminderText }) => (<Modal isOpen={isOpen} onRequestClose={onClose} style={{ ...customModalStyles, content: { ...customModalStyles.content, width: '850px' } }} contentLabel="Admin Reminder" appElement={document.getElementById('root') || undefined}> <div className="flex justify-between items-center mb-6"> <div className="flex items-center gap-3"> <span className="text-3xl animate-pulse">📢</span> <h2 className="text-2xl font-bold text-yellow-400 font-['Pirata_One']">IMPORTANT REMINDER</h2> </div> <button onClick={onClose} className="text-gray-400 hover:text-white text-3xl">×</button> </div> <div className="text-center text-lg bg-gray-900/50 p-6 rounded-lg border border-yellow-500/50"> <p>{reminderText}</p> </div> <div className="mt-6 flex justify-end"> <button onClick={onClose} className="px-6 py-2 rounded-lg bg-orange-600 text-white hover:bg-orange-700">Acknowledged</button> </div> </Modal>);
-const AssistanceModal = ({ isOpen, onClose, isSubmittingIssue, issueError, issueText, setIssueText, handleIssueSubmit }) => (<Modal isOpen={isOpen} onRequestClose={onClose} style={{ ...customModalStyles, content: { ...customModalStyles.content, width: '850px' } }} contentLabel="Request Assistance" appElement={document.getElementById('root') || undefined}> <div className="text-white"> <div className="flex justify-between items-center mb-6"> <h2 className="text-2xl font-bold text-orange-400 font-['Pirata_One']">Request Assistance</h2> <button onClick={onClose} className="text-gray-400 hover:text-white text-3xl" disabled={isSubmittingIssue}>×</button> </div> {issueError && (<div className="bg-red-900/50 text-red-300 p-3 rounded-lg mb-4 text-center">{issueError}</div>)} <p className="text-gray-300 mb-4">If you have a technical problem or need help, please describe it below. Our team will reach you shortly.</p> <textarea value={issueText} onChange={(e) => setIssueText(e.target.value)} placeholder="Describe your problem here..." className="w-full h-40 p-4 bg-gray-700 border border-gray-600 rounded-xl" disabled={isSubmittingIssue} /> <div className="mt-6 flex justify-end gap-4"> <button onClick={onClose} className="px-6 py-2 rounded-lg border border-gray-600 hover:bg-gray-700" disabled={isSubmittingIssue}>Cancel</button> <button onClick={handleIssueSubmit} className="px-6 py-2 rounded-lg bg-orange-600 text-white hover:bg-orange-700 disabled:opacity-50" disabled={isSubmittingIssue || !issueText.trim()}> {isSubmittingIssue ? 'Submitting...' : 'Submit Request'} </button> </div> </div> </Modal>);
+const ReminderModal = ({ isOpen, onClose, reminderText }) => (<Modal isOpen={isOpen} onRequestClose={onClose} style={{ ...customModalStyles, content: { ...customModalStyles.content, width: '850px' } }} contentLabel="Admin Reminder" appElement={document.getElementById('root') || undefined}> <div className="flex justify-between items-center mb-6"> <div className="flex items-center gap-3"> <span className="text-3xl animate-pulse">📢</span> <h2 className="text-2xl font-bold text-yellow-400 font-['Pirata_One']">IMPORTANT REMINDER</h2> </div> <button onClick={onClose} className="text-gray-400 hover:text-white text-3xl">×</button> </div> <div className="text-center text-lg bg-gray-900/50 p-6 rounded-lg border border-yellow-500/50"> <p>{reminderText}</p> </div> <div className="mt-6 flex justify-end"> <button onClick={onClose} className="px-6 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700">Acknowledged</button> </div> </Modal>);
+const AssistanceModal = ({ isOpen, onClose, isSubmittingIssue, issueError, issueText, setIssueText, handleIssueSubmit }) => (<Modal isOpen={isOpen} onRequestClose={onClose} style={{ ...customModalStyles, content: { ...customModalStyles.content, width: '850px' } }} contentLabel="Request Assistance" appElement={document.getElementById('root') || undefined}> <div className="text-white"> <div className="flex justify-between items-center mb-6"> <h2 className="text-2xl font-bold text-purple-400 font-['Pirata_One']">Request Assistance</h2> <button onClick={onClose} className="text-gray-400 hover:text-white text-3xl" disabled={isSubmittingIssue}>×</button> </div> {issueError && (<div className="bg-red-900/50 text-red-300 p-3 rounded-lg mb-4 text-center">{issueError}</div>)} <p className="text-gray-300 mb-4">If you have a technical problem or need help, please describe it below. Our team will reach you shortly.</p> <textarea value={issueText} onChange={(e) => setIssueText(e.target.value)} placeholder="Describe your problem here..." className="w-full h-40 p-4 bg-gray-700 border border-gray-600 rounded-xl" disabled={isSubmittingIssue} /> <div className="mt-6 flex justify-end gap-4"> <button onClick={onClose} className="px-6 py-2 rounded-lg border border-gray-600 hover:bg-gray-700" disabled={isSubmittingIssue}>Cancel</button> <button onClick={handleIssueSubmit} className="px-6 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50" disabled={isSubmittingIssue || !issueText.trim()}> {isSubmittingIssue ? 'Submitting...' : 'Submit Request'} </button> </div> </div> </Modal>);
 
 const customModalStyles2 = {
     content: {
@@ -398,16 +398,16 @@ const DomainSelectionModal = ({ isOpen, onClose, isSubmitting, selectedSet, doma
                 {isSubmitting && (
                     <div className="absolute inset-0 bg-gray-900/80 flex flex-col justify-center items-center rounded-lg z-20">
                         <PirateLoader size={100} />
-                        <p className="text-orange-400 font-['Pirata_One'] text-2xl mt-4">Confirming Your Path...</p>
+                        <p className="text-purple-400 font-['Pirata_One'] text-2xl mt-4">Confirming Your Path...</p>
                     </div>
                 )}
 
                 <div className="flex justify-between items-center pb-4 border-b border-gray-700 mb-4">
-                    <h2 className="text-2xl font-bold text-orange-400 font-['Pirata_One']">Choose Your Path in {selectedSet}</h2>
+                    <h2 className="text-2xl font-bold text-purple-400 font-['Pirata_One']">Choose Your Path in {selectedSet}</h2>
                     <div className="flex items-center gap-4">
                         <button
                             onClick={handleSubmit}
-                            className="px-6 py-2 rounded-lg bg-orange-600 text-white font-bold hover:bg-orange-700 disabled:opacity-50 transition-colors"
+                            className="px-6 py-2 rounded-lg bg-purple-600 text-white font-bold hover:bg-purple-700 disabled:opacity-50 transition-colors"
                             disabled={!selectedDomain || isSubmitting}
                         >
                             Confirm Selection
@@ -419,7 +419,7 @@ const DomainSelectionModal = ({ isOpen, onClose, isSubmitting, selectedSet, doma
                 {isLoading ? (
                     <div className="h-[40vh] flex flex-col justify-center items-center">
                         <PirateLoader size={100} />
-                        <p className="text-orange-400 font-['Pirata_One'] text-xl mt-4">Fetching Problem Statements...</p>
+                        <p className="text-purple-400 font-['Pirata_One'] text-xl mt-4">Fetching Problem Statements...</p>
                     </div>
                 ) : (
                     <div className="max-h-[70vh] overflow-y-auto pr-2 flex flex-col gap-4 py-2">
@@ -429,10 +429,10 @@ const DomainSelectionModal = ({ isOpen, onClose, isSubmitting, selectedSet, doma
                                 onClick={() => domain.slots > 0 && handleSelect(domain.id)}
                                 className={`flex items-start justify-between p-6 rounded-xl border-2 transition-all duration-200
                                     ${selectedDomain === domain.id
-                                        ? 'bg-orange-600/80 border-orange-400 scale-[1.02]'
+                                        ? 'bg-purple-600/80 border-purple-400 scale-[1.02]'
                                         : domain.slots === 0
                                             ? 'bg-gray-800 border-gray-700 opacity-50 cursor-not-allowed'
-                                            : 'bg-gray-800 border-gray-600 hover:bg-gray-700 hover:border-orange-500 cursor-pointer'
+                                            : 'bg-gray-800 border-gray-600 hover:bg-gray-700 hover:border-purple-500 cursor-pointer'
                                     }`
                                 }
                             >
@@ -455,20 +455,20 @@ const GameModal = ({ isOpen, onClose, onGameEnd, isSubmitting }) => (
         isOpen={isOpen}
         onRequestClose={onClose}
         style={{ ...customModalStyles, content: { ...customModalStyles.content, width: 'auto', maxWidth: '500px' } }}
-        contentLabel="Memory Flip Game"
+        contentLabel="Captain's Decision Game"
         appElement={document.getElementById('root') || undefined}
     >
         <div className="relative">
             {isSubmitting && (
                 <div className="absolute inset-0 bg-gray-900/80 flex flex-col justify-center items-center rounded-lg z-20">
                     <PirateLoader size={120} />
-                    <p className="text-orange-400 font-['Pirata_One'] text-2xl mt-4">Saving Your Score...</p>
+                    <p className="text-purple-400 font-['Pirata_One'] text-2xl mt-4">Saving Your Score...</p>
                 </div>
             )}
             <div className="flex justify-end">
                 <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors text-3xl font-light" disabled={isSubmitting}>×</button>
             </div>
-            <MemoryFlipGame onGameEnd={onGameEnd} />
+            <CaptainsDecisionGame onGameEnd={onGameEnd} />
         </div>
     </Modal>
 );
@@ -478,29 +478,29 @@ const AttendanceInfo = ({ onOpenModal }) => {
     return (
         <div
             onClick={onOpenModal}
-            className="group relative bg-black/50 border border-orange-500/30 rounded-lg p-6 flex flex-col items-center justify-center text-center h-48 w-full cursor-pointer overflow-hidden transition-all duration-300 hover:border-orange-400 hover:bg-black/70 hover:shadow-lg hover:shadow-orange-500/20"
+            className="group relative bg-black/50 border border-purple-500/30 rounded-lg p-6 flex flex-col items-center justify-center text-center h-48 w-full cursor-pointer overflow-hidden transition-all duration-300 hover:border-purple-400 hover:bg-black/70 hover:shadow-lg hover:shadow-purple-500/20"
         >
             {/* --- Decorative Corner Brackets --- */}
             <div className="absolute top-0 left-0 w-full h-full p-2">
-                <span className="absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 border-orange-500/60 group-hover:border-orange-400 transition-colors duration-300"></span>
-                <span className="absolute top-2 right-2 w-4 h-4 border-t-2 border-r-2 border-orange-500/60 group-hover:border-orange-400 transition-colors duration-300"></span>
-                <span className="absolute bottom-2 left-2 w-4 h-4 border-b-2 border-l-2 border-orange-500/60 group-hover:border-orange-400 transition-colors duration-300"></span>
-                <span className="absolute bottom-2 right-2 w-4 h-4 border-b-2 border-r-2 border-orange-500/60 group-hover:border-orange-400 transition-colors duration-300"></span>
+                <span className="absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 border-purple-500/60 group-hover:border-purple-400 transition-colors duration-300"></span>
+                <span className="absolute top-2 right-2 w-4 h-4 border-t-2 border-r-2 border-purple-500/60 group-hover:border-purple-400 transition-colors duration-300"></span>
+                <span className="absolute bottom-2 left-2 w-4 h-4 border-b-2 border-l-2 border-purple-500/60 group-hover:border-purple-400 transition-colors duration-300"></span>
+                <span className="absolute bottom-2 right-2 w-4 h-4 border-b-2 border-r-2 border-purple-500/60 group-hover:border-purple-400 transition-colors duration-300"></span>
             </div>
 
             {/* --- Content --- */}
             <div className="relative z-10 flex flex-col items-center justify-center gap-3">
                 {/* Large Icon with Glow */}
                 <div className="relative">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-orange-400 transition-all duration-300 group-hover:text-orange-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-purple-400 transition-all duration-300 group-hover:text-purple-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
                     {/* Glow effect */}
-                    <div className="absolute inset-0 -z-10 bg-orange-500 rounded-full blur-xl opacity-0 group-hover:opacity-40 transition-opacity duration-300"></div>
+                    <div className="absolute inset-0 -z-10 bg-purple-500 rounded-full blur-xl opacity-0 group-hover:opacity-40 transition-opacity duration-300"></div>
                 </div>
 
                 {/* Title and Call to Action */}
-                <h2 className="text-xl font-bold font-['Pirata_One'] text-orange-400 tracking-wider">
+                <h2 className="text-xl font-bold font-['Pirata_One'] text-purple-400 tracking-wider">
                     ATTENDANCE
                 </h2>
                 <p className="text-sm font-semibold text-gray-400 group-hover:text-white transition-colors duration-300 tracking-widest">
@@ -529,19 +529,19 @@ const EventSchedule = ({ domainOpenTime, isDomainOpen, gameOpenTime, puzzleOpenT
     const items = [
         { icon: '🗂️', label: 'Domain Selection', time: fmt(domainOpenTime), status: domainStatus, sub: domainSub },
         { icon: '🍽️', label: 'Lunch Break', time: '01:00 PM', status: h >= 13 && h < 14 ? 'open' : h >= 14 ? 'done' : 'upcoming', sub: h >= 13 && h < 14 ? '🥪 Lunch time now!' : h >= 14 ? 'Done' : 'Upcoming' },
-        { icon: '🧠', label: 'Memory Flip Game', time: fmt(gameOpenTime), status: tStatus(gameOpenTime, team?.memoryGamePlayed), sub: team?.memoryGamePlayed ? `✅ Score: ${team.memoryGameScore}` : gameOpenTime ? (new Date(gameOpenTime) > now ? `Opens at ${fmt(gameOpenTime)}` : '🔓 Open now!') : 'Not scheduled' },
-        { icon: '⏱️', label: 'Sequence Challenge', time: fmt(barGameOpenTime), status: tStatus(barGameOpenTime, team?.stopTheBarPlayed), sub: team?.stopTheBarPlayed ? `✅ Score: ${team.stopTheBarScore}` : barGameOpenTime ? (new Date(barGameOpenTime) > now ? `Opens at ${fmt(barGameOpenTime)}` : '🔓 Open now!') : 'Not scheduled' },
-        { icon: '🔢', label: 'Number Puzzle', time: fmt(puzzleOpenTime), status: tStatus(puzzleOpenTime, team?.numberPuzzlePlayed), sub: team?.numberPuzzlePlayed ? `✅ Score: ${team.numberPuzzleScore}` : puzzleOpenTime ? (new Date(puzzleOpenTime) > now ? `Opens at ${fmt(puzzleOpenTime)}` : '🔓 Open now!') : 'Not scheduled' },
+        { icon: '🧠', label: "Captain's Decision", time: fmt(gameOpenTime), status: tStatus(gameOpenTime, team?.memoryGamePlayed), sub: team?.memoryGamePlayed ? `✅ Score: ${team.memoryGameScore}` : gameOpenTime ? (new Date(gameOpenTime) > now ? `Opens at ${fmt(gameOpenTime)}` : '🔓 Open now!') : 'Not scheduled' },
+        { icon: '🧭', label: "Lost Compass", time: fmt(barGameOpenTime), status: tStatus(barGameOpenTime, team?.stopTheBarPlayed), sub: team?.stopTheBarPlayed ? `✅ Score: ${team.stopTheBarScore}` : barGameOpenTime ? (new Date(barGameOpenTime) > now ? `Opens at ${fmt(barGameOpenTime)}` : '🔓 Open now!') : 'Not scheduled' },
+        { icon: '☠️', label: "Black Pearl Cipher", time: fmt(puzzleOpenTime), status: tStatus(puzzleOpenTime, team?.numberPuzzlePlayed), sub: team?.numberPuzzlePlayed ? `✅ Score: ${team.numberPuzzleScore}` : puzzleOpenTime ? (new Date(puzzleOpenTime) > now ? `Opens at ${fmt(puzzleOpenTime)}` : '🔓 Open now!') : 'Not scheduled' },
         { icon: '📋', label: 'Review 1', time: '03:00 PM', status: isFirstReviewOpen ? 'open' : 'pending', sub: isFirstReviewOpen ? '🟢 Judges are reviewing now' : '⭕ Not started yet' },
         { icon: '🏆', label: 'Final Review', time: '05:00 PM', status: isSecondReviewOpen ? 'open' : 'pending', sub: isSecondReviewOpen ? '🟢 Final review in progress' : '⭕ Not started yet' },
         { icon: '🏁', label: 'Hackathon Ends', time: '11:00 PM', status: h >= 23 ? 'done' : 'upcoming', sub: h >= 23 ? '✅ Hackathon completed! Great work!' : '⏳ Finish & submit before this!' },
     ];
-    const dot = { done: 'bg-green-400', open: 'bg-orange-400 ring-4 ring-orange-400/20 animate-pulse', upcoming: 'bg-blue-400', pending: 'bg-gray-600' };
-    const card = { done: 'bg-green-900/20 border-green-500/30', open: 'bg-orange-900/20 border-orange-500/40', upcoming: 'bg-blue-900/20 border-blue-500/30', pending: 'bg-gray-800/40 border-gray-600/30' };
-    const txt = { done: 'text-green-300', open: 'text-orange-300', upcoming: 'text-blue-300', pending: 'text-gray-400' };
+    const dot = { done: 'bg-green-400', open: 'bg-purple-400 ring-4 ring-purple-400/20 animate-pulse', upcoming: 'bg-blue-400', pending: 'bg-gray-600' };
+    const card = { done: 'bg-green-900/20 border-green-500/30', open: 'bg-purple-900/20 border-purple-500/40', upcoming: 'bg-blue-900/20 border-blue-500/30', pending: 'bg-gray-800/40 border-gray-600/30' };
+    const txt = { done: 'text-green-300', open: 'text-purple-300', upcoming: 'text-blue-300', pending: 'text-gray-400' };
     return (
         <div className="bg-black/20 rounded-xl border border-gray-700/50 p-5 h-full">
-            <h2 className="text-xl font-bold font-['Pirata_One'] text-orange-400 border-b-2 border-orange-500/30 pb-2 mb-5">📅 TODAY'S SCHEDULE</h2>
+            <h2 className="text-xl font-bold font-['Pirata_One'] text-purple-400 border-b-2 border-purple-500/30 pb-2 mb-5">📅 TODAY'S SCHEDULE</h2>
             <div className="relative pl-6">
                 <div className="absolute left-2.5 top-2 bottom-2 w-0.5 bg-gray-700/60 rounded-full" />
                 <div className="space-y-3">
@@ -573,33 +573,33 @@ const BADGES = [
         icon: '📁',
         name: 'Pathfinder',
         desc: 'Selected a Problem Statement',
-        colors: ['#f97316', '#b45309'],
-        glow: 'rgba(249,115,22,0.7)',
+        colors: ['#a855f7', '#b45309'],
+        glow: 'rgba(168,85,247,0.7)',
         unlocked: (t) => !!t.Domain,
     },
     {
         id: 'memory',
         icon: '🧠',
         name: 'Mind Master',
-        desc: 'Won Memory Flip',
+        desc: "Won Captain's Decision",
         colors: ['#818cf8', '#6d28d9'],
         glow: 'rgba(129,140,248,0.7)',
         unlocked: (t) => !!t.memoryGamePlayed,
     },
     {
         id: 'stopbar',
-        icon: '⏱️',
-        name: 'Speed Demon',
-        desc: 'Mastered Sequence Challenge',
+        icon: '🧭',
+        name: 'True North',
+        desc: 'Mastered Lost Compass',
         colors: ['#f472b6', '#be185d'],
         glow: 'rgba(244,114,182,0.7)',
         unlocked: (t) => !!t.stopTheBarPlayed,
     },
     {
         id: 'puzzle',
-        icon: '🔢',
-        name: 'Puzzle King',
-        desc: 'Solved the Number Puzzle',
+        icon: '☠️',
+        name: 'Cipher Master',
+        desc: 'Cracked the Black Pearl Cipher',
         colors: ['#34d399', '#065f46'],
         glow: 'rgba(52,211,153,0.7)',
         unlocked: (t) => !!t.numberPuzzlePlayed,
@@ -652,7 +652,7 @@ const BADGES = [
 
 const BadgeWall = ({ team }) => (
     <div className="bg-black/20 rounded-xl border border-gray-700/50 p-5">
-        <h2 className="text-xl font-bold font-['Pirata_One'] text-orange-400 border-b-2 border-orange-500/30 pb-2 mb-6">
+        <h2 className="text-xl font-bold font-['Pirata_One'] text-purple-400 border-b-2 border-purple-500/30 pb-2 mb-6">
             🏅 ACHIEVEMENT BADGES
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-5 justify-items-center">
@@ -824,9 +824,9 @@ const BadgeWall = ({ team }) => (
 // --- REVIEW ALERT BANNER ---
 const REVIEW_BANNER_STYLES = {
     first: {
-        bg: 'from-orange-600 via-red-600 to-orange-700',
-        border: 'border-orange-400',
-        glow: 'shadow-orange-500/60',
+        bg: 'from-purple-600 via-red-600 to-purple-700',
+        border: 'border-purple-400',
+        glow: 'shadow-purple-500/60',
         icon: '📋',
         title: 'REVIEW 1 IS NOW LIVE!',
         msg: 'Judges are reviewing teams now. Be ready at your sector!',
@@ -950,6 +950,7 @@ function Teamdash() {
     const [isBarGameOpen, setIsBarGameOpen] = useState(false);
     const [barGameOpenTime, setBarGameOpenTime] = useState(null);
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+    const [exitWarning, setExitWarning] = useState(null); // null | 'game' | 'puzzle' | 'bar'
     const [logoutMessage, setLogoutMessage] = useState('');
     const [isFirstReviewOpen, setIsFirstReviewOpen] = useState(false);
     const [isSecondReviewOpen, setIsSecondReviewOpen] = useState(false);
@@ -1278,7 +1279,7 @@ function Teamdash() {
         socket.emit("domainSelected",
             { teamId: team._id, domain: selectedDomain });
     };
-    const handleSetClick = (set) => { setSelectedSet(set); setIsDomainModalOpen(true); setIsDomainListLoading(true); socket.emit("client:getDomains", ""); };
+    const handleSetClick = (set) => { nav('/domains', { state: { selectedSet: set } }); };
 
     const handleLogout = () => {
 
@@ -1373,16 +1374,16 @@ function Teamdash() {
                     <div className="bg-white/10 border border-white/20 rounded-2xl p-8 backdrop-blur-xl shadow-2xl shadow-black/40">
                         <div className="text-center mb-8">
                             <h1
-                                className="text-5xl font-bold tracking-widest text-transparent bg-clip-text bg-gradient-to-b from-orange-300 via-orange-500 to-amber-700"
+                                className="text-5xl font-bold tracking-widest text-transparent bg-clip-text bg-gradient-to-b from-purple-300 via-purple-500 to-amber-700"
                                 style={{ fontFamily: '"Pirata One", serif', textShadow: '0 0 30px rgba(251,146,60,0.5), 0 4px 8px rgba(0,0,0,0.8)', letterSpacing: '0.12em' }}
                             >
                                 HACKSAIL 2K26
                             </h1>
-                            <p className="text-orange-400/70 text-xs tracking-[0.3em] uppercase mt-1 font-medium">⚓ Set Sail &amp; Conquer ⚓</p>
-                            <div className="mt-1 h-px bg-gradient-to-r from-transparent via-orange-500/50 to-transparent" />
-                            <h2 className="text-2xl font-bold font-['Pirata_One'] tracking-wider text-orange-400 mt-4">Team Login</h2>
+                            <p className="text-purple-400/70 text-xs tracking-[0.3em] uppercase mt-1 font-medium">⚓ Set Sail &amp; Conquer ⚓</p>
+                            <div className="mt-1 h-px bg-gradient-to-r from-transparent via-purple-500/50 to-transparent" />
+                            <h2 className="text-2xl font-bold font-['Pirata_One'] tracking-wider text-purple-400 mt-4">Team Login</h2>
                             <p className="text-gray-400 mt-1">Welcome to the Arena</p>
-                            <div className="mt-6 bg-orange-500/10 border border-orange-400/30 text-orange-300 text-sm rounded-lg p-3">
+                            <div className="mt-6 bg-purple-500/10 border border-purple-400/30 text-purple-300 text-sm rounded-lg p-3">
                                 <p className="font-semibold">Note:</p>
                                 <p className="mt-1">Login access is restricted to <span className="font-medium">Team Leads only</span>.</p>
                                 <p>Each account can log in for <span className="font-medium">one device only</span>.</p>
@@ -1400,10 +1401,10 @@ function Teamdash() {
                                 <input
                                     id="teamName" type="text" value={teamName}
                                     onChange={(e) => setTeamName(e.target.value)}
-                                    className="block w-full px-3 py-4 text-white bg-white/5 rounded-lg border-2 border-transparent focus:border-orange-500 focus:outline-none peer transition"
+                                    className="block w-full px-3 py-4 text-white bg-white/5 rounded-lg border-2 border-transparent focus:border-purple-500 focus:outline-none peer transition"
                                     placeholder=" "
                                 />
-                                <label htmlFor="teamName" className="absolute text-sm text-gray-400 duration-300 transform -translate-y-4 scale-75 top-4 z-10 origin-[0] left-3 peer-focus:text-orange-400 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-4">
+                                <label htmlFor="teamName" className="absolute text-sm text-gray-400 duration-300 transform -translate-y-4 scale-75 top-4 z-10 origin-[0] left-3 peer-focus:text-purple-400 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-4">
                                     Team Name
                                 </label>
                             </div>
@@ -1413,10 +1414,10 @@ function Teamdash() {
                                     id="pass" type="password" value={pass}
                                     onChange={(e) => { setPass(e.target.value); setError(""); }}
                                     onKeyPress={(e) => e.key === 'Enter' && !loading && pass && verify()}
-                                    className="block w-full px-3 py-4 text-white bg-white/5 rounded-lg border-2 border-transparent focus:border-orange-500 focus:outline-none peer transition"
+                                    className="block w-full px-3 py-4 text-white bg-white/5 rounded-lg border-2 border-transparent focus:border-purple-500 focus:outline-none peer transition"
                                     placeholder=" "
                                 />
-                                <label htmlFor="pass" className="absolute text-sm text-gray-400 duration-300 transform -translate-y-4 scale-75 top-4 z-10 origin-[0] left-3 peer-focus:text-orange-400 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-4">
+                                <label htmlFor="pass" className="absolute text-sm text-gray-400 duration-300 transform -translate-y-4 scale-75 top-4 z-10 origin-[0] left-3 peer-focus:text-purple-400 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-4">
                                     Team Access Code
                                 </label>
                             </div>
@@ -1425,7 +1426,7 @@ function Teamdash() {
                         <button
                             onClick={() => verify()}
                             disabled={loading || !pass}
-                            className="w-full mt-8 flex items-center justify-center bg-gradient-to-r from-orange-500 to-yellow-500 py-3 rounded-lg font-bold text-lg text-gray-900 hover:shadow-lg hover:shadow-orange-500/40 transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:transform-none disabled:shadow-none"
+                            className="w-full mt-8 flex items-center justify-center bg-gradient-to-r from-purple-500 to-yellow-500 py-3 rounded-lg font-bold text-lg text-gray-900 hover:shadow-lg hover:shadow-purple-500/40 transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:transform-none disabled:shadow-none"
                         >
                             {loading ? (
                                 <>
@@ -1467,8 +1468,8 @@ function Teamdash() {
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
             {logoutMessage && (
                 <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
-                    <div className="bg-gray-800 border border-orange-500 text-white p-8 rounded-lg shadow-lg text-center">
-                        <h2 className="text-2xl font-bold mb-4 font-['Pirata_One'] text-orange-400">Forced Logout</h2>
+                    <div className="bg-gray-800 border border-purple-500 text-white p-8 rounded-lg shadow-lg text-center">
+                        <h2 className="text-2xl font-bold mb-4 font-['Pirata_One'] text-purple-400">Forced Logout</h2>
                         <p className="text-lg">{logoutMessage}</p>
                     </div>
                 </div>
@@ -1481,7 +1482,7 @@ function Teamdash() {
                 title="Final Confirmation"
             >
                 <p>You have selected the Problem Statement:</p>
-                <p className="text-xl font-bold text-orange-400 my-2 text-center">
+                <p className="text-xl font-bold text-purple-400 my-2 text-center">
                     {DomainData.find(d => d.id === selectedDomain)?.name || "Unknown"}
                 </p>
                 <p className="text-center">
@@ -1495,30 +1496,66 @@ function Teamdash() {
             <AssistanceModal isOpen={isAssistanceModalOpen} onClose={() => setIsAssistanceModalOpen(false)} isSubmittingIssue={isSubmittingIssue} issueError={issueError} issueText={issueText} setIssueText={setIssueText} handleIssueSubmit={handleIssueSubmit} />
             {team && <AttendanceModal isOpen={isAttendanceModalOpen} onClose={() => setIsAttendanceModalOpen(false)} team={team} attendanceIcon={attendanceIcon} />}
             <DomainSelectionModal isOpen={isDomainModalOpen} onClose={() => setIsDomainModalOpen(false)} isSubmitting={isSubmittingDomain} selectedSet={selectedSet} domainData={DomainData} selectedDomain={selectedDomain} handleSelect={setSelectedDomain} handleSubmit={() => setIsConfirmModalOpen(true)} isLoading={isDomainListLoading} />
-            <GameModal isOpen={isGameModalOpen} onClose={() => !isSubmittingGameScore && setIsGameModalOpen(false)} onGameEnd={handleGameEnd} isSubmitting={isSubmittingGameScore} />
-            <Modal isOpen={isNumberPuzzleModalOpen} onRequestClose={() => !isSubmittingPuzzleScore && setIsNumberPuzzleModalOpen(false)} style={{ ...customModalStyles, content: { ...customModalStyles.content, width: 'auto', maxWidth: '500px' } }} contentLabel="Number Puzzle Game">
+            {/* ── EXIT WARNING MODAL ── */}
+            {exitWarning && (
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+                    <div className="bg-gray-900 border-2 border-red-500/60 rounded-2xl p-8 max-w-md w-full shadow-2xl shadow-red-500/20 text-center">
+                        <div className="text-6xl mb-4">⚠️</div>
+                        <h2 className="text-2xl font-bold text-red-400 font-['Pirata_One'] tracking-wider mb-3">Abandon Ship?</h2>
+                        <p className="text-gray-300 leading-relaxed mb-2">
+                            If you exit now, your <span className="text-red-400 font-bold">current progress will be auto-submitted</span> with the score earned so far.
+                        </p>
+                        <p className="text-yellow-400 text-sm font-semibold mb-6">You cannot replay this game after exiting!</p>
+                        <div className="flex gap-3 justify-center">
+                            <button
+                                onClick={() => setExitWarning(null)}
+                                className="px-6 py-3 rounded-xl border border-gray-600 text-gray-300 hover:bg-gray-800 font-bold transition-all"
+                            >
+                                ✖ Stay & Play
+                            </button>
+                            <button
+                                onClick={async () => {
+                                    const which = exitWarning;
+                                    setExitWarning(null);
+                                    if (which === 'game') { await handleGameEnd(0); setIsGameModalOpen(false); }
+                                    else if (which === 'puzzle') { await handlePuzzleEnd(0); setIsNumberPuzzleModalOpen(false); }
+                                    else if (which === 'bar') { await handleBarGameEnd(0); setIsStopTheBarModalOpen(false); }
+                                }}
+                                className="px-6 py-3 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold transition-all shadow-[0_0_20px_rgba(239,68,68,0.4)]"
+                            >
+                                🏳️ Exit & Submit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            <GameModal isOpen={isGameModalOpen} onClose={() => !isSubmittingGameScore && setExitWarning('game')} onGameEnd={handleGameEnd} isSubmitting={isSubmittingGameScore} />
+            <Modal isOpen={isNumberPuzzleModalOpen} onRequestClose={() => !isSubmittingPuzzleScore && setExitWarning('puzzle')} style={{ ...customModalStyles, content: { ...customModalStyles.content, width: 'auto', maxWidth: '500px' } }} contentLabel="Black Pearl Cipher">
                 <div className="relative">
                     {isSubmittingPuzzleScore && (
                         <div className="absolute inset-0 bg-gray-900/80 flex flex-col justify-center items-center rounded-lg z-20">
                             <PirateLoader size={120} />
-                            <p className="text-orange-400 font-['Pirata_One'] text-2xl mt-4">Saving Your Score...</p>
+                            <p className="text-purple-400 font-['Pirata_One'] text-2xl mt-4">Saving Your Score...</p>
                         </div>
                     )}
                     <div className="flex justify-end">
-                        <button onClick={() => setIsNumberPuzzleModalOpen(false)} className="text-gray-400 hover:text-white transition-colors text-3xl font-light" disabled={isSubmittingPuzzleScore}>×</button>
+                        <button onClick={() => setExitWarning('puzzle')} className="text-gray-400 hover:text-red-400 transition-colors text-3xl font-light" disabled={isSubmittingPuzzleScore}>×</button>
                     </div>
-                    <NumberPuzzleGame onGameEnd={handlePuzzleEnd} />
+                    <BlackPearlCipherGame onGameEnd={handlePuzzleEnd} />
                 </div>
             </Modal>
-            <Modal isOpen={isStopTheBarModalOpen} onRequestClose={() => !isSubmittingBarScore && setIsStopTheBarModalOpen(false)} style={{ ...customModalStyles, content: { ...customModalStyles.content, width: 'auto', maxWidth: '520px' } }} contentLabel="Stop The Bar Game">
+            <Modal isOpen={isStopTheBarModalOpen} onRequestClose={() => !isSubmittingBarScore && setExitWarning('bar')} style={{ ...customModalStyles, content: { ...customModalStyles.content, width: 'auto', maxWidth: '420px' } }} contentLabel="Lost Compass Challenge">
                 <div className="relative">
                     {isSubmittingBarScore && (
                         <div className="absolute inset-0 bg-gray-900/80 flex flex-col justify-center items-center rounded-lg z-20">
                             <PirateLoader size={120} />
-                            <p className="text-orange-400 font-['Pirata_One'] text-2xl mt-4">Saving Your Score...</p>
+                            <p className="text-purple-400 font-['Pirata_One'] text-2xl mt-4">Saving Your Score...</p>
                         </div>
                     )}
-                    <StopTheBarGame onGameEnd={handleBarGameEnd} />
+                    <div className="flex justify-end">
+                        <button onClick={() => setExitWarning('bar')} className="text-gray-400 hover:text-red-400 transition-colors text-3xl font-light" disabled={isSubmittingBarScore}>×</button>
+                    </div>
+                    <LostCompassGame onGameEnd={handleBarGameEnd} />
                 </div>
             </Modal>
 
@@ -1527,18 +1564,20 @@ function Teamdash() {
                 <div className="relative z-20 flex items-center justify-center h-screen">
                     <div className="text-center">
                         <PirateLoader size={160} />
-                        <p className="text-xl font-['Pirata_One'] text-orange-400 mt-4">Loading Mission...</p>
+                        <p className="text-xl font-['Pirata_One'] text-purple-400 mt-4">Loading Mission...</p>
                     </div>
                 </div>
             ) : (
                 <div className="relative z-10 flex flex-col h-full w-full">
-                    <header className="flex-shrink-0 w-full bg-black/40 backdrop-blur-md border-b border-orange-500/30 z-20 shadow-md">
+                    <header className="flex-shrink-0 w-full bg-black/40 backdrop-blur-md border-b border-purple-500/30 z-20 shadow-md">
                         <div className="w-full max-w-[100rem] mx-auto px-4 md:px-8 py-3 flex items-center justify-between">
 
                             {/* Left Section: Logo + Sector */}
                             <div className="flex items-center space-x-4">
                                 <img src={scorecraft} className="h-10 rounded-full" alt="Scorecraft Logo" />
-                                <span className="text-xl font-bold text-orange-400 font-['Pirata_One'] whitespace-nowrap hidden sm:inline-block">HackSail-2k25</span>
+                                <span className="text-2xl font-bold text-[#E63946] font-['Pirata_One'] drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] tracking-wider whitespace-nowrap hidden sm:inline-block">
+                                    HackSail-2k25
+                                </span>
                                 <p className="text-sm text-gray-400 italic">
                                     Sector{" "}
                                     <span className="font-mono font-bold text-gray-200">
@@ -1548,7 +1587,7 @@ function Teamdash() {
                             </div>
 
                             {/* Center Section: Team Name */}
-                            <h1 className="text-2xl font-bold text-orange-400 font-['Pirata_One'] tracking-widest text-center">
+                            <h1 className="text-4xl font-bold text-[#2DD4BF] font-['Pirata_One'] tracking-[0.2em] text-center drop-shadow-[0_0_10px_rgba(45,212,191,0.4)]">
                                 {team.teamname}
                             </h1>
 
@@ -1647,8 +1686,8 @@ function Teamdash() {
                                     {/* 2. Problem Statements (Mission Control) */}
                                     <div
                                         className={`flex flex-col rounded-2xl p-6 sm:p-8 relative overflow-hidden group transition-colors ${(!selectedProblemStatement && !team.Domain && !DomainOpen && domainOpenTime)
-                                            ? 'shadow-[0_0_30px_rgba(249,115,22,0.3)]'
-                                            : 'bg-black/40 backdrop-blur-xl border-2 border-orange-500/50 shadow-[0_0_30px_rgba(249,115,22,0.15)] hover:border-orange-400'
+                                            ? 'shadow-[0_0_30px_rgba(168,85,247,0.3)]'
+                                            : 'bg-black/40 backdrop-blur-xl border-2 border-purple-500/50 shadow-[0_0_30px_rgba(168,85,247,0.15)] hover:border-purple-400'
                                             }`}
                                         style={
                                             (!selectedProblemStatement && !team.Domain && !DomainOpen && domainOpenTime)
@@ -1661,19 +1700,19 @@ function Teamdash() {
                                                 : {}
                                         }
                                     >
-                                        <div className="absolute top-0 right-0 w-72 h-72 bg-orange-500/10 rounded-full blur-[100px] pointer-events-none group-hover:bg-orange-500/20 group-hover:scale-110 transition-all duration-700"></div>
+                                        <div className="absolute top-0 right-0 w-72 h-72 bg-purple-500/10 rounded-full blur-[100px] pointer-events-none group-hover:bg-purple-500/20 group-hover:scale-110 transition-all duration-700"></div>
                                         <div className="absolute bottom-0 left-0 w-40 h-40 bg-yellow-500/10 rounded-full blur-[80px] pointer-events-none group-hover:bg-yellow-500/15 transition-all duration-700"></div>
 
-                                        <div className="flex items-center justify-between border-b-2 border-orange-500/30 pb-4 mb-6">
-                                            <h2 className="text-3xl font-bold font-['Pirata_One'] text-orange-400 flex items-center gap-3 drop-shadow">
-                                                <span className="text-4xl filter drop-shadow-[0_0_8px_rgba(249,115,22,0.5)]">🧭</span> MISSION CONTROL
+                                        <div className="flex items-center justify-between border-b-2 border-purple-500/30 pb-4 mb-6">
+                                            <h2 className="text-3xl font-bold font-['Pirata_One'] text-purple-400 flex items-center gap-3 drop-shadow">
+                                                <span className="text-4xl filter drop-shadow-[0_0_8px_rgba(168,85,247,0.5)]">🧭</span> MISSION CONTROL
                                             </h2>
-                                            <span className="animate-pulse w-3 h-3 bg-orange-500 rounded-full shadow-[0_0_10px_rgba(249,115,22,0.8)]"></span>
+                                            <span className="animate-pulse w-3 h-3 bg-purple-500 rounded-full shadow-[0_0_10px_rgba(168,85,247,0.8)]"></span>
                                         </div>
 
                                         <div className={`p-6 sm:p-8 rounded-xl backdrop-blur-md relative z-10 flex-grow flex flex-col justify-center shadow-inner ${(!selectedProblemStatement && !team.Domain && !DomainOpen && domainOpenTime) ? 'bg-transparent border-transparent' : 'bg-gradient-to-b from-gray-900/90 to-black/90 border border-gray-700/60'}`}>
                                             {!(!selectedProblemStatement && !team.Domain && !DomainOpen && domainOpenTime) && (
-                                                <h3 className="font-bold text-orange-500/60 text-xs mb-6 tracking-[0.2em] shadow-black uppercase text-center border-b border-gray-800 pb-2">Destiny Path</h3>
+                                                <h3 className="font-bold text-purple-500/60 text-xs mb-6 tracking-[0.2em] shadow-black uppercase text-center border-b border-gray-800 pb-2">Destiny Path</h3>
                                             )}
 
                                             {selectedProblemStatement ? (
@@ -1682,7 +1721,21 @@ function Teamdash() {
                                                     <div className="relative">
                                                         <div className="absolute -left-2 top-0 text-3xl text-gray-700 font-serif">"</div>
                                                         <p className="text-base sm:text-lg text-gray-200 bg-gray-800/40 p-5 rounded-xl italic border border-gray-700/50 leading-relaxed shadow-lg backdrop-blur-sm z-10 relative">
-                                                            {selectedProblemStatement.description}
+                                                            {selectedProblemStatement.problemStatement}
+                                                            <br />
+                                                            <br />
+                                                            <h3 className="text-center mb-8">
+                                                                <span className="block text-xs font-semibold tracking-[0.25em] uppercase text-purple-500/70 mb-2">
+                                                                    Features
+                                                                </span>
+                                                                <span className="block text-sm text-gray-400">
+                                                                    (You can also add your own ideas & enhancements)
+                                                                </span>
+                                                                <div className="mt-4 w-16 h-[2px] bg-purple-500/60 mx-auto rounded"></div>
+                                                            </h3>
+                                                            {selectedProblemStatement.features.map((feature, index) => (
+                                                                <li key={index}>{feature}</li>
+                                                            ))}
                                                         </p>
                                                         <div className="absolute -right-2 bottom-0 text-3xl text-gray-700 font-serif rotate-180">"</div>
                                                     </div>
@@ -1698,20 +1751,20 @@ function Teamdash() {
                                                     DomainOpen ? (
                                                         [...new Set(DomainData.map(item => item.set))].length > 0 ? (
                                                             <div className="flex flex-col gap-4 justify-center items-center py-4 fade-in">
-                                                                <p className="text-orange-300 mb-2 animate-pulse font-['Pirata_One'] text-2xl tracking-widest">Select your destiny</p>
+                                                                <p className="text-purple-300 mb-2 animate-pulse font-['Pirata_One'] text-2xl tracking-widest">Select your destiny</p>
                                                                 <button onClick={() => handleSetClick("Set 1")} className="w-full max-w-sm py-4 relative group/btn overflow-hidden rounded-xl font-bold text-lg transition-all hover:scale-105">
-                                                                    <div className="absolute inset-0 bg-gradient-to-r from-orange-600 to-orange-500 transition-all duration-300"></div>
-                                                                    <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-yellow-500 opacity-0 group-hover/btn:opacity-100 transition-all duration-500"></div>
-                                                                    <span className="relative z-10 text-white drop-shadow-md tracking-wide">Campus Community Box</span>
+                                                                    <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-purple-500 transition-all duration-300"></div>
+                                                                    <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-yellow-500 opacity-0 group-hover/btn:opacity-100 transition-all duration-500"></div>
+                                                                    <span className="relative z-10 text-white drop-shadow-md tracking-wide">AI&ML</span>
                                                                 </button>
                                                                 <button onClick={() => handleSetClick("Set 2")} className="w-full max-w-sm py-4 relative group/btn overflow-hidden rounded-xl font-bold text-lg transition-all hover:scale-105">
                                                                     <div className="absolute inset-0 bg-gradient-to-r from-amber-600 to-amber-500 transition-all duration-300"></div>
                                                                     <div className="absolute inset-0 bg-gradient-to-r from-yellow-500 to-amber-400 opacity-0 group-hover/btn:opacity-100 transition-all duration-500"></div>
-                                                                    <span className="relative z-10 text-white drop-shadow-md tracking-wide">Lifestyle & Productivity Box</span>
+                                                                    <span className="relative z-10 text-white drop-shadow-md tracking-wide">Ai+Full Stack</span>
                                                                 </button>
                                                             </div>
                                                         ) : (
-                                                            <p className="text-center text-orange-400/70 animate-pulse text-xl py-10 font-['Pirata_One'] tracking-widest">Unsealing mystical parchment...</p>
+                                                            <p className="text-center text-purple-400/70 animate-pulse text-xl py-10 font-['Pirata_One'] tracking-widest">Unsealing mystical parchment...</p>
                                                         )
                                                     ) : (
                                                         domainOpenTime ? (
@@ -1786,7 +1839,7 @@ function Teamdash() {
                                                                 {item.type === 'reminder' ? (
                                                                     <>
                                                                         <div className="flex justify-between items-start mb-1">
-                                                                            <p className="font-bold text-amber-400/90 text-sm tracking-wide">Admiral Command</p>
+                                                                            <p className="font-bold text-amber-400/90 text-sm tracking-wide">Admin - Reminder</p>
                                                                             <p className="text-[10px] text-gray-500 font-mono bg-black/40 px-2 py-0.5 rounded text-right">{item.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                                                                         </div>
                                                                         <p className="text-sm text-gray-200 mt-1 leading-relaxed">{item.message}</p>
@@ -1851,7 +1904,7 @@ function Teamdash() {
                                                         🧠
                                                     </div>
                                                     <div className="flex-1">
-                                                        <p className="text-indigo-100 text-sm">Memory Flip</p>
+                                                        <p className="text-indigo-100 text-sm">Captain's Decision</p>
                                                         {team.memoryGamePlayed ? (<p className="text-green-400 text-xs font-mono mt-0.5">Score: {team.memoryGameScore}</p>) : isGameOpen ? (<p className="text-white text-xs mt-0.5 bg-indigo-500/50 inline-block px-2 py-0.5 rounded text-[10px] uppercase">Play Now</p>) : (
                                                             <p className="text-indigo-300/70 text-[10px] font-mono mt-0.5 tracking-tighter">At {formatUnlockTime(gameOpenTime)}</p>
                                                         )}
@@ -1867,10 +1920,10 @@ function Teamdash() {
                                                 <div className="absolute inset-0 bg-white/5 opacity-0 group-hover/quest:opacity-100 transition-opacity"></div>
                                                 <div className="flex items-center gap-3 relative z-10 w-full text-left">
                                                     <div className="w-10 h-10 bg-black/30 rounded-lg flex items-center justify-center text-xl group-disabled/quest:grayscale">
-                                                        ⏱️
+                                                        🧭
                                                     </div>
                                                     <div className="flex-1">
-                                                        <p className="text-pink-100 text-sm">Sequence Challenge</p>
+                                                        <p className="text-pink-100 text-sm">Lost Compass</p>
                                                         {team.stopTheBarPlayed ? (<p className="text-green-400 text-xs font-mono mt-0.5">Score: {team.stopTheBarScore}</p>) : isBarGameOpen ? (<p className="text-white text-xs mt-0.5 bg-pink-500/50 inline-block px-2 py-0.5 rounded text-[10px] uppercase">Play Now</p>) : (
                                                             <p className="text-pink-300/70 text-[10px] font-mono mt-0.5 tracking-tighter">At {formatUnlockTime(barGameOpenTime)}</p>
                                                         )}
@@ -1886,10 +1939,10 @@ function Teamdash() {
                                                 <div className="absolute inset-0 bg-white/5 opacity-0 group-hover/quest:opacity-100 transition-opacity"></div>
                                                 <div className="flex items-center gap-3 relative z-10 w-full text-left">
                                                     <div className="w-10 h-10 bg-black/30 rounded-lg flex items-center justify-center text-xl group-disabled/quest:grayscale">
-                                                        🔢
+                                                        ☠️
                                                     </div>
                                                     <div className="flex-1">
-                                                        <p className="text-teal-100 text-sm">Number Puzzle</p>
+                                                        <p className="text-teal-100 text-sm">Black Pearl Cipher</p>
                                                         {team.numberPuzzlePlayed ? (<p className="text-green-400 text-xs font-mono mt-0.5">Score: {team.numberPuzzleScore}</p>) : isPuzzleOpen ? (<p className="text-white text-xs mt-0.5 bg-teal-500/50 inline-block px-2 py-0.5 rounded text-[10px] uppercase">Play Now</p>) : (
                                                             <p className="text-teal-300/70 text-[10px] font-mono mt-0.5 tracking-tighter">At {formatUnlockTime(puzzleOpenTime)}</p>
                                                         )}
