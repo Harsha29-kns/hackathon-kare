@@ -529,13 +529,13 @@ const EventSchedule = ({ domainOpenTime, isDomainOpen, gameOpenTime, puzzleOpenT
                 : 'Not opened yet';
     const items = [
         { icon: '🗂️', label: 'Domain Selection', time: fmt(domainOpenTime), status: domainStatus, sub: domainSub },
-        { icon: '🍽️', label: 'Lunch Break', time: '01:00 PM', status: h >= 13 && h < 14 ? 'open' : h >= 14 ? 'done' : 'upcoming', sub: h >= 13 && h < 14 ? '🥪 Lunch time now!' : h >= 14 ? 'Done' : 'Upcoming' },
+        { icon: '🍽️', label: 'Lunch Break', time: '12:00 PM', status: h >= 13 && h < 14 ? 'open' : h >= 14 ? 'done' : 'upcoming', sub: h >= 13 && h < 14 ? '🥪 Lunch time now!' : h >= 14 ? 'Done' : 'Upcoming' },
         { icon: '🧠', label: "Captain's Decision", time: fmt(gameOpenTime), status: tStatus(gameOpenTime, team?.memoryGamePlayed), sub: team?.memoryGamePlayed ? `✅ Score: ${team.memoryGameScore}` : gameOpenTime ? (new Date(gameOpenTime) > now ? `Opens at ${fmt(gameOpenTime)}` : '🔓 Open now!') : 'Not scheduled' },
         { icon: '🧭', label: "Lost Compass", time: fmt(barGameOpenTime), status: tStatus(barGameOpenTime, team?.stopTheBarPlayed), sub: team?.stopTheBarPlayed ? `✅ Score: ${team.stopTheBarScore}` : barGameOpenTime ? (new Date(barGameOpenTime) > now ? `Opens at ${fmt(barGameOpenTime)}` : '🔓 Open now!') : 'Not scheduled' },
         { icon: '☠️', label: "Black Pearl Cipher", time: fmt(puzzleOpenTime), status: tStatus(puzzleOpenTime, team?.numberPuzzlePlayed), sub: team?.numberPuzzlePlayed ? `✅ Score: ${team.numberPuzzleScore}` : puzzleOpenTime ? (new Date(puzzleOpenTime) > now ? `Opens at ${fmt(puzzleOpenTime)}` : '🔓 Open now!') : 'Not scheduled' },
-        { icon: '📋', label: 'Review 1', time: '03:00 PM', status: isFirstReviewOpen ? 'open' : 'pending', sub: isFirstReviewOpen ? '🟢 Judges are reviewing now' : '⭕ Not started yet' },
-        { icon: '🏆', label: 'Final Review', time: '05:00 PM', status: isSecondReviewOpen ? 'open' : 'pending', sub: isSecondReviewOpen ? '🟢 Final review in progress' : '⭕ Not started yet' },
-        { icon: '🏁', label: 'Hackathon Ends', time: '11:00 PM', status: h >= 23 ? 'done' : 'upcoming', sub: h >= 23 ? '✅ Hackathon completed! Great work!' : '⏳ Finish & submit before this!' },
+        { icon: '📋', label: 'Review 1', time: '05:00 PM', status: isFirstReviewOpen ? 'open' : 'pending', sub: isFirstReviewOpen ? '🟢 Judges are reviewing now' : '⭕ Not started yet' },
+        { icon: '🏆', label: 'Final Review', time: '04:00 AM', status: isSecondReviewOpen ? 'open' : 'pending', sub: isSecondReviewOpen ? '🟢 Final review in progress' : '⭕ Not started yet' },
+        { icon: '🏁', label: 'Hackathon Ends', time: '11:00 AM', status: h >= 23 ? 'done' : 'upcoming', sub: h >= 23 ? '✅ Hackathon completed! Great work!' : '⏳ Finish & submit before this!' },
     ];
     const dot = { done: 'bg-green-400', open: 'bg-purple-400 ring-4 ring-purple-400/20 animate-pulse', upcoming: 'bg-blue-400', pending: 'bg-gray-600' };
     const card = { done: 'bg-green-900/20 border-green-500/30', open: 'bg-purple-900/20 border-purple-500/40', upcoming: 'bg-blue-900/20 border-blue-500/30', pending: 'bg-gray-800/40 border-gray-600/30' };
@@ -1788,12 +1788,12 @@ function Teamdash() {
                                                                 <button onClick={() => handleSetClick("Set 1")} className="w-full max-w-sm py-4 relative group/btn overflow-hidden rounded-xl font-bold text-lg transition-all hover:scale-105">
                                                                     <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-purple-500 transition-all duration-300"></div>
                                                                     <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-yellow-500 opacity-0 group-hover/btn:opacity-100 transition-all duration-500"></div>
-                                                                    <span className="relative z-10 text-white drop-shadow-md tracking-wide">AI&ML</span>
+                                                                    <span className="relative z-10 text-white drop-shadow-md tracking-wide">AI+Full Stack Set-1</span>
                                                                 </button>
                                                                 <button onClick={() => handleSetClick("Set 2")} className="w-full max-w-sm py-4 relative group/btn overflow-hidden rounded-xl font-bold text-lg transition-all hover:scale-105">
                                                                     <div className="absolute inset-0 bg-gradient-to-r from-amber-600 to-amber-500 transition-all duration-300"></div>
                                                                     <div className="absolute inset-0 bg-gradient-to-r from-yellow-500 to-amber-400 opacity-0 group-hover/btn:opacity-100 transition-all duration-500"></div>
-                                                                    <span className="relative z-10 text-white drop-shadow-md tracking-wide">Ai+Full Stack</span>
+                                                                    <span className="relative z-10 text-white drop-shadow-md tracking-wide">AI+Full Stack Set-2</span>
                                                                 </button>
                                                             </div>
                                                         ) : (

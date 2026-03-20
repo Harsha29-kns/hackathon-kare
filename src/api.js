@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 //const api = "http://localhost:3001";
-const api="https://scorecraft-backend-73gb.onrender.com";
+const api = "https://scorecraft-backend-73gb.onrender.com";
 
 // Setup global Axios interceptors to automatically include the JWT token
 axios.interceptors.request.use(

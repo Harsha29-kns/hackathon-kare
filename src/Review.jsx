@@ -225,7 +225,8 @@ function Review() {
     const [submitStatus, setSubmitStatus] = useState(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [password, setPassword] = useState("");
-    const [judge, setJudge] = useState(null); // "judge1" or "judge2" (backend ID)
+    const [identifier, setIdentifier] = useState("");
+    const [judge, setJudge] = useState(null); // Backend ID
     const [judgeDisplay, setJudgeDisplay] = useState(""); // display name
     const [error, setError] = useState("");
     const [searchQuery, setSearchQuery] = useState("");
@@ -304,24 +305,19 @@ function Review() {
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
-            let assumedIdentifier = "";
-            if (password === "Harsha@35") assumedIdentifier = "judge1";
-            else if (password === "Bhuvan@43") assumedIdentifier = "judge2";
-            else assumedIdentifier = "unknown"; // will fail auth
-
             const response = await axios.post(`${api}/api/Hack/auth/login`, {
-                identifier: assumedIdentifier,
+                identifier: identifier.trim(),
                 password: password
             });
 
             if (response.data.token) {
-                const judgeId = response.data.identifier; // 'judge1'
+                const judgeId = response.data.identifier;
                 setIsAuthenticated(true);
                 setJudge(judgeId);
-                setJudgeDisplay(password);
+                setJudgeDisplay(judgeId);
                 sessionStorage.setItem("judgeToken", response.data.token);
                 sessionStorage.setItem("judgeId", judgeId);
-                sessionStorage.setItem("judgeDisplay", password);
+                sessionStorage.setItem("judgeDisplay", judgeId);
                 setError("");
             }
         } catch (err) {
@@ -333,6 +329,7 @@ function Review() {
         setIsAuthenticated(false);
         setJudge(null);
         setJudgeDisplay("");
+        setIdentifier("");
         setPassword("");
         setTeams([]);
         sessionStorage.removeItem("judgeToken");
@@ -430,6 +427,11 @@ function Review() {
                                     Speak the secret and enter, or be cast overboard
                                 </p>
                             </div>
+                            <div className="text-center mb-8">
+                                <p className="text-white" >
+                                    Enter judge1 or judge2
+                                </p>
+                            </div>
 
                             {/* Divider */}
                             <div className="flex items-center gap-3 mb-6">
@@ -440,6 +442,21 @@ function Review() {
 
                             <form onSubmit={handleLogin} className="space-y-5">
                                 <div className="relative">
+    
+                                    <input
+                                        type="text"
+                                        value={identifier}
+                                        onChange={(e) => setIdentifier(e.target.value)}
+                                        placeholder="Enter Identity (e.g., judge1)..."
+                                        required
+                                        className="w-full pl-14 pr-4 py-4 rounded-xl font-parchment text-base tracking-widest"
+                                        style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(212,175,55,0.2)', color: '#f0d060', outline: 'none' }}
+                                        onFocus={e => e.target.style.borderColor = 'rgba(212,175,55,0.6)'}
+                                        onBlur={e => e.target.style.borderColor = 'rgba(212,175,55,0.2)'}
+                                    />
+                                </div>
+
+                                <div className="relative">
                                     <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none" style={{ color: 'rgba(212,175,55,0.5)' }}>
                                         <IconKey />
                                     </div>
@@ -449,7 +466,7 @@ function Review() {
                                         onChange={(e) => setPassword(e.target.value)}
                                         placeholder="Enter Passkey..."
                                         required
-                                        className="w-full pl-12 pr-12 py-4 rounded-xl font-parchment text-base tracking-widest"
+                                        className="w-full pl-14 pr-12 py-4 rounded-xl font-parchment text-base tracking-widest"
                                         style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(212,175,55,0.2)', color: '#f0d060', outline: 'none' }}
                                         onFocus={e => e.target.style.borderColor = 'rgba(212,175,55,0.6)'}
                                         onBlur={e => e.target.style.borderColor = 'rgba(212,175,55,0.2)'}
@@ -469,7 +486,7 @@ function Review() {
                                 )}
 
                                 <button type="submit" className="submit-btn w-full py-4 rounded-xl text-lg font-bold uppercase">
-                                    ⚓ Board the Ship
+                                    Login
                                 </button>
                             </form>
                         </div>
@@ -524,8 +541,8 @@ function Review() {
                     {/* Sidebar Header */}
                     <div className="p-5 flex-shrink-0" style={{ borderBottom: '1px solid rgba(212,175,55,0.1)' }}>
                         <div className="flex items-center gap-3 mb-3">
-                            <span className="text-2xl">🗺️</span>
-                            <h2 className="font-pirata text-xl tracking-wider gold-shimmer">Crew Manifest</h2>
+                            
+                            <h2 className="font-pirata text-xl tracking-wider gold-shimmer">Judge Dashboard</h2>
                         </div>
                         <div className="relative">
                             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm" style={{ color: 'rgba(212,175,55,0.5)' }}>🔍</span>
