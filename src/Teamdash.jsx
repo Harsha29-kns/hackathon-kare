@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import api from "./api";
 import socket from "./socket";
@@ -1108,11 +1108,8 @@ function Teamdash() {
             setIsDomainStatLoading(false);
         };
 
-        // Start emitting requests for initial dashboard data
-        socket.emit("domainStat");
-        socket.emit("client:getDomains");
-        socket.emit("getGameStatus"); // also fetches hackathonEndTime & puzzle/bar times
-        socket.emit("judge:getReviewStatus");
+        // NOTE: Initial data-fetch emits are moved to BELOW the listeners
+        // to avoid the race condition where server replies arrive before listeners are set up.
 
         const timeUpdater = setInterval(() => {
             setCurrentTime(new Date());
@@ -1247,6 +1244,13 @@ function Teamdash() {
         socket.on("gameStatusUpdate", handleGameStatusUpdate);
         socket.on("puzzleStatusUpdate", handlePuzzleStatusUpdate);
         socket.on("stopTheBarStatusUpdate", handleStopTheBarStatusUpdate);
+
+        // Now that all listeners are registered, request the current status from the server.
+        // This ensures server responses are always captured and not lost to a race condition.
+        socket.emit("getGameStatus"); // fetches gameOpenTime, puzzleOpenTime, stopTheBarOpenTime
+        socket.emit("domainStat");
+        socket.emit("client:getDomains");
+        socket.emit("judge:getReviewStatus");
 
         // Cleanup function for this effect
         return () => {
