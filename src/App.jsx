@@ -22,8 +22,8 @@ import Domains from './Domains'; // Added Domains route
 function App() {
   return (
     <Routes >
-      <Route path='/' element={<Landing />} />
-      {/*<Route path='/' element={<Instructions/>}/>*/}
+      {/*<Route path='/' element={<Landing />} />*/}
+      <Route path='/' element={<Instructions />} />
       <Route path='/home' element={<Landing />} />
       <Route path='/loginadmin' element={<Admin />} />
       <Route path='/qratt' element={<Attd />} />
