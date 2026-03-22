@@ -27,7 +27,7 @@ function App() {
       <Route path='/home' element={<Landing />} />
       <Route path='/loginadmin' element={<Admin />} />
       <Route path='/qratt' element={<Attd />} />
-      <Route path='/teamdash' element={<Teamdash />} />
+      <Route path='/tteamdash' element={<Teamdash />} />
       <Route path='/domains' element={<Domains />} />
       <Route path='/rreview' element={<Review />} />
       <Route path='/TTeamMarks' element={<TeamMarks />} />

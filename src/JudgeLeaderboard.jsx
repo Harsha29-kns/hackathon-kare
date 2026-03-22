@@ -56,7 +56,7 @@ function JudgeLeaderboard() {
                 const sortedSasukeTeams = allTeams
                     .filter(t => t.Sector === "Jack Sparrow")
                     .sort((a, b) => a.teamname.localeCompare(b.teamname));
-                
+
                 // Assign teams to judges based on the specified logic
                 const judge1Teams = [
                     ...allTeams.filter(t => t.Sector === "Barbossa"),
@@ -66,7 +66,7 @@ function JudgeLeaderboard() {
                     ...allTeams.filter(t => t.Sector === "jones"),
                     ...sortedSasukeTeams.slice(10)
                 ];
-                
+
                 // Get the top 10 for each judge
                 const top10Judge1 = judge1Teams
                     .sort((a, b) => (b.FinalScore || 0) - (a.FinalScore || 0))
@@ -98,7 +98,7 @@ function JudgeLeaderboard() {
 
     return (
         <div className="min-h-screen bg-gray-900 text-gray-200 font-sans py-12 px-4">
-             <style>{`body { background-color: #111827; }`}</style>
+            <style>{`body { background-color: #111827; }`}</style>
             <div className="max-w-7xl mx-auto">
                 <h1 className="text-4xl font-bold text-center mb-12 text-white tracking-wider">JUDGE LEADERBOARDS</h1>
 

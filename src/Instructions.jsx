@@ -122,7 +122,7 @@ function Instructions() {
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ delay: 0.8, duration: 0.5 }}
                 >
-                    <button 
+                   {/* <button 
                         onClick={() => nav("/teamdash")}
                         className="group relative px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl overflow-hidden shadow-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
                     >
@@ -131,7 +131,7 @@ function Instructions() {
                             <ShieldCheck size={22} className="text-purple-400 group-hover:text-white transition-colors" />
                             Proceed to Team Login
                         </span>
-                    </button> 
+                    </button> */}
                 </motion.div>
             </div>
         </div>
